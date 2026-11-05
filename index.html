@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'">
+<title>条文討伐</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="悪事をはたらく魔物を、正しい条文で斬る。本物の法律で戦う1日3体のバトル。時間制限なし、3分で遊べます。">
+<meta name="theme-color" content="#14122b">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="条文討伐">
+<meta property="og:title" content="条文討伐：その悪事、どの条文で斬る？">
+<meta property="og:description" content="魔物の悪事に当てはまる条文を選んで斬る。だれでも同じ1日3体、本物の法律で戦うバトル。">
+<meta property="og:url" content="https://satou-aaaaa.github.io/jobun-tobatsu/">
+<meta property="og:image" content="https://satou-aaaaa.github.io/jobun-tobatsu/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="条文討伐：魔物を条文で斬る法律バトル">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@800&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap">
+<style>
+/* 夜の霧の中で、金の縁の条文カードを振るう。魔物は大きく、文字は少なく */
+:root{
+  --bg:#14122b; --bg2:#221d45; --ink:#f3eee2; --ink2:#b9b2d0; --line:#ffffff22;
+  --gold:#e6b84c; --gold2:#9c7424; --red:#e2574c; --red2:#a8352d; --ok:#5fd0a0;
+  --paper:#f5ecd6; --pink:#2a2238;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-head:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(120% 70% at 50% 0%,#2c2560 0%,var(--bg) 60%) fixed,var(--bg);color:var(--ink);font-family:var(--f-body);font-weight:500;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(1.5px 1.5px at 12% 18%,#fff8 50%,transparent 51%),radial-gradient(1px 1px at 72% 9%,#fff7 50%,transparent 51%),radial-gradient(1.5px 1.5px at 88% 34%,#fff6 50%,transparent 51%),radial-gradient(1px 1px at 33% 42%,#fff5 50%,transparent 51%),radial-gradient(1px 1px at 55% 24%,#fff6 50%,transparent 51%);z-index:0}
+.wrap{position:relative;z-index:1;max-width:460px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 28px;display:flex;flex-direction:column;gap:14px;min-height:100%;box-sizing:border-box}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px}
+h1{font-family:var(--f-head);font-weight:800;font-size:20px;margin:0;letter-spacing:.06em;text-align:center;flex:1}
+h1 small{display:block;font-family:var(--f-body);font-size:11px;letter-spacing:0;color:var(--ink2);font-weight:500}
+.icon{all:unset;cursor:pointer;font-size:18px;min-width:44px;height:44px;display:grid;place-items:center;border-radius:12px;border:1px solid var(--line);box-sizing:border-box;padding:0 8px;background:#ffffff0d}
+button.main,a.main{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;min-height:54px;border-radius:16px;background:linear-gradient(180deg,#f0c860,#d39a2c);color:#2a1c05;font-weight:700;font-size:17px;padding:0 16px;text-align:center;box-shadow:0 4px 0 var(--gold2),0 0 24px #e6b84c33}
+button.main:active{transform:translateY(2px);box-shadow:0 2px 0 var(--gold2)}
+button.main small{font-weight:500;opacity:.75}
+button.main.alt{background:linear-gradient(180deg,#9b4ad6,#6b2fa3);color:#fff;box-shadow:0 4px 0 #44176e,0 0 24px #9b4ad633}
+button.sub,a.sub{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;border-radius:14px;border:1px solid var(--line);background:#ffffff10;color:var(--ink);font-weight:700;font-size:15px;padding:0 12px;text-align:center}
+button.sub:disabled{opacity:.4;cursor:default}
+.row{display:flex;gap:10px}.row>.sub,.row>.main{flex:1 1 0}
+.note{color:var(--ink2);font-size:13px;line-height:1.6;margin:0;text-align:center}
+.note a{color:var(--gold);display:inline-flex;align-items:center;min-height:44px}
+/* 魔物 */
+.arena{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:4px}
+.mon{width:min(58vw,210px);aspect-ratio:1;position:relative}
+.mon svg{width:100%;height:100%;overflow:visible;display:block}
+.mon .bob{animation:bob 3.2s ease-in-out infinite;transform-origin:50% 80%}
+@keyframes bob{50%{transform:translateY(-7px) scale(1.02,.98)}}
+.mon .bob.weak{animation:wobble 2.4s ease-in-out infinite}
+@keyframes wobble{25%{transform:translateY(-3px) rotate(-2deg)}75%{transform:translateY(-1px) rotate(2deg)}}
+.mon .smoke{animation:smoke 2.2s ease-out infinite}
+@keyframes smoke{0%{transform:translateY(8px) scale(.5);opacity:0}30%{opacity:.5}100%{transform:translateY(-26px) scale(1.4);opacity:0}}
+.mon.flee svg{animation:flee .9s ease-in forwards}
+@keyframes flee{30%{transform:translateX(-12px)}100%{transform:translateX(160px) scale(.7);opacity:0}}
+.mon.hit svg{animation:hit .45s ease-out}
+@keyframes hit{0%{filter:brightness(3.2)}20%{transform:translateX(-10px) rotate(-3deg)}45%{transform:translateX(9px) rotate(2deg)}70%{transform:translateX(-4px)}100%{filter:none;transform:none}}
+.mon.lunge svg{animation:lunge .5s ease-in-out}
+@keyframes lunge{40%{transform:scale(1.22) translateY(18px)}100%{transform:none}}
+.mon.vanish svg{animation:vanish .9s ease-in forwards}
+@keyframes vanish{0%{filter:brightness(2.5)}100%{transform:scale(1.35) translateY(-20px);filter:blur(10px) brightness(3);opacity:0}}
+.slash{position:absolute;left:50%;top:45%;width:150%;height:6px;border-radius:6px;background:linear-gradient(90deg,transparent,#fff,#ffe9a6,transparent);transform:translate(-50%,-50%) rotate(-32deg) scaleX(0);box-shadow:0 0 18px #ffe39a;pointer-events:none;animation:slash .38s ease-out forwards}
+@keyframes slash{0%{transform:translate(-50%,-50%) rotate(-32deg) scaleX(0);opacity:1}60%{transform:translate(-50%,-50%) rotate(-32deg) scaleX(1);opacity:1}100%{transform:translate(-50%,-50%) rotate(-32deg) scaleX(1);opacity:0}}
+.pop{position:absolute;left:50%;top:18%;transform:translateX(-50%);font-family:var(--f-head);font-size:34px;color:#ffe9a6;text-shadow:0 0 12px #e6b84c,0 2px 0 #7a5410;pointer-events:none;animation:popup .9s ease-out forwards}
+.pop small{display:block;font-family:var(--f-body);font-size:14px;letter-spacing:.1em;text-align:center}
+.pop{white-space:nowrap;font-size:28px}
+.slash.s2{animation-delay:.12s;transform:translate(-50%,-50%) rotate(32deg) scaleX(0);animation-name:slash2}
+@keyframes slash2{0%{transform:translate(-50%,-50%) rotate(32deg) scaleX(0);opacity:1}60%{transform:translate(-50%,-50%) rotate(32deg) scaleX(1);opacity:1}100%{transform:translate(-50%,-50%) rotate(32deg) scaleX(1);opacity:0}}
+.chain{position:absolute;left:50%;top:52%;width:130%;height:12px;border-radius:6px;background:repeating-linear-gradient(90deg,#9ff5e6 0 14px,transparent 14px 18px,#5fd0c0 18px 32px,transparent 32px 36px);box-shadow:0 0 14px #5fd0c0;pointer-events:none;animation:chain .7s ease-out forwards;--r:-22deg}
+.chain.c2{--r:22deg;top:58%}
+@keyframes chain{0%{transform:translate(-50%,-50%) rotate(var(--r)) scaleX(1.8);opacity:0}40%{transform:translate(-50%,-50%) rotate(var(--r)) scaleX(1);opacity:1}75%{transform:translate(-50%,-50%) rotate(var(--r)) scaleX(.82);opacity:1}100%{transform:translate(-50%,-50%) rotate(var(--r)) scaleX(.82);opacity:0}}
+.pillar{position:absolute;left:50%;top:-60%;width:46%;height:170%;transform:translateX(-50%) scaleX(0);background:linear-gradient(180deg,#ffffff00,#fffbe6 30%,#cfe6ff 70%,#ffffff00);filter:blur(2px);box-shadow:0 0 40px #cfe6ff;pointer-events:none;animation:pillar .75s ease-out forwards;border-radius:40%}
+@keyframes pillar{0%{transform:translateX(-50%) scaleX(0);opacity:0}30%{transform:translateX(-50%) scaleX(1);opacity:1}100%{transform:translateX(-50%) scaleX(.2);opacity:0}}
+.ring{position:absolute;left:50%;top:52%;width:40%;aspect-ratio:1;border-radius:50%;border:6px solid #ffb35c;box-shadow:0 0 18px #ff9a3c,inset 0 0 12px #ff9a3c;transform:translate(-50%,-50%) scale(.2);pointer-events:none;animation:ring .7s ease-out forwards}
+.ring.r2{animation-delay:.12s}.ring.r3{animation-delay:.24s}
+@keyframes ring{0%{transform:translate(-50%,-50%) scale(.2);opacity:1}100%{transform:translate(-50%,-50%) scale(2.6);opacity:0}}
+.charm{position:absolute;left:50%;top:52%;width:54px;height:84px;margin:-42px 0 0 -27px;background:linear-gradient(180deg,#fff6dc,#f3dfae);border:2px solid #c0392b;border-radius:4px;color:#c0392b;font-family:var(--f-head);font-size:30px;display:grid;place-items:center;box-shadow:0 0 18px #ff8fb8;pointer-events:none;animation:charm .8s cubic-bezier(.2,.9,.3,1.2) forwards}
+@keyframes charm{0%{transform:translateY(240px) rotate(-200deg) scale(.6);opacity:0}45%{transform:translateY(0) rotate(-8deg) scale(1.15);opacity:1}75%{transform:rotate(0) scale(1);opacity:1}100%{transform:scale(1.4);opacity:0}}
+.mon.fx-min.hit svg{animation:bind .6s ease-out}
+@keyframes bind{0%{filter:brightness(2) hue-rotate(40deg)}30%{transform:scale(.9,1.04)}60%{transform:scale(.94,1.02)}100%{filter:none;transform:none}}
+.mon.fx-ken.hit svg{animation:smite .6s ease-out}
+@keyframes smite{0%{filter:brightness(3.5)}30%{transform:translateY(10px) scale(1.04,.92)}100%{filter:none;transform:none}}
+.mon.fx-rou.hit svg{animation:quake .55s linear}
+@keyframes quake{0%{filter:brightness(2.4)}10%,50%,90%{transform:translateX(-7px)}30%,70%{transform:translateX(7px)}100%{filter:none;transform:none}}
+.ask small{display:block;font-size:11px;color:var(--ink2);font-weight:500;margin-top:1px}
+.ask{font-size:16px;font-weight:700;color:var(--ink)}
+.law p.pick{font-size:12.5px;color:#7a3a2a;border-top:1px dashed #c99a3d;padding-top:6px}
+.newlaw{margin:0;font-size:13px;color:#ffe9a6;background:#e6b84c1c;border:1px solid #e6b84c55;border-radius:12px;padding:8px 12px}
+.mon.enter svg{animation:enter .7s ease-out}
+@keyframes enter{0%{opacity:0;filter:blur(12px) brightness(.3);transform:scale(.7) translateY(20px)}100%{opacity:1;filter:none;transform:none}}
+.pop.bad{color:#ffb3ab;text-shadow:0 0 12px #e2574c,0 2px 0 #6a1d17}
+@keyframes popup{0%{opacity:0;transform:translate(-50%,10px) scale(.6)}25%{opacity:1;transform:translate(-50%,0) scale(1.15)}100%{opacity:0;transform:translate(-50%,-30px) scale(1)}}
+.spark{position:absolute;left:50%;top:50%;width:8px;height:8px;border-radius:50%;background:#ffe9a6;box-shadow:0 0 10px #ffd36b;pointer-events:none;animation:spark .9s ease-out forwards}
+@keyframes spark{to{transform:translate(var(--x),var(--y)) scale(.2);opacity:0}}
+.hurt{position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 90px 30px #e2574c88;animation:hurt .5s ease-out forwards;z-index:5}
+@keyframes hurt{to{opacity:0}}
+.mname{font-family:var(--f-head);font-size:22px;letter-spacing:.08em;text-align:center;line-height:1.1}
+.mname small{display:block;font-family:var(--f-body);font-size:11px;color:var(--ink2);letter-spacing:.02em;margin-top:3px}
+.hpbar{display:flex;gap:4px;width:min(60vw,220px)}
+.hpbar i{flex:1;height:9px;border-radius:5px;background:linear-gradient(90deg,#ff7a6b,#e2574c);box-shadow:0 0 8px #e2574c88;transition:background .3s,box-shadow .3s}
+.hpbar i.off{background:#ffffff1c;box-shadow:none}
+.deed{background:linear-gradient(180deg,#2d2656,#231e47);border:1px solid #ffffff2a;border-radius:16px;padding:12px 14px;font-size:17px;line-height:1.6;text-align:center;font-weight:700;position:relative;box-shadow:0 8px 24px #0005}
+.deed::before{content:"事件";position:absolute;top:-10px;left:14px;font-size:11px;background:var(--red2);color:#fff;border-radius:8px;padding:1px 8px;font-weight:700;letter-spacing:.1em}
+.ask{font-size:13px;color:var(--ink2);text-align:center;margin:0}
+.cards{display:flex;flex-direction:column;gap:9px}
+.card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:60px;border-radius:14px;background:linear-gradient(180deg,#fbf3df,#ecdcb6);color:var(--pink);padding:8px 14px;border:2px solid #c99a3d;box-shadow:0 3px 0 #8b6a2b,inset 0 0 0 1px #fff8;transition:transform .12s}
+.card:active{transform:translateY(2px)}
+.card .no{font-size:11px;line-height:1.3;color:#6e5a3a;min-width:66px;text-align:center;border-right:1px dashed #b89a5e;padding-right:10px}
+.card .no b{display:block;font-size:15px;color:#3a2a14}
+.card .nm{font-family:var(--f-head);font-size:20px;letter-spacing:.04em;flex:1}
+.card.right{border-color:var(--ok);box-shadow:0 0 0 3px #5fd0a066,0 0 24px #5fd0a088}
+.card.wrong{border-color:var(--red);opacity:.75;filter:saturate(.5)}
+.card.gone{opacity:.25;filter:grayscale(1);cursor:default;text-decoration:line-through}
+.card:disabled{cursor:default}
+.cards.done .card:not(.right):not(.wrong){opacity:.4}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px}
+.shield{display:flex;gap:4px;font-size:20px;align-items:center}
+.shield span{transition:opacity .3s,filter .3s}.shield .off{opacity:.18;filter:grayscale(1)}
+.shield small{font-size:12px;color:var(--ink2);margin-right:4px}
+.foot .sub{min-height:44px;font-size:14px}
+.law{background:linear-gradient(180deg,#fbf3df,#efe2c2);color:var(--pink);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px;box-shadow:0 8px 24px #0006;animation:up .3s ease-out;border:2px solid #c99a3d}
+.law .hd{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.law .hd b{font-size:12px;border-radius:8px;padding:2px 8px;color:#fff;background:#2f8f6a}
+.law.ng .hd b{background:var(--red2)}
+.law q{display:block;font-family:var(--f-head);font-size:15px;line-height:1.7;quotes:"「" "」";color:#3a2a14}
+.law p{margin:0;font-size:14px;line-height:1.6;color:#4d3e2a}
+.law .main{margin-top:2px}
+@keyframes up{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.dots{display:flex;gap:6px;justify-content:center}
+.dots i{width:22px;height:6px;border-radius:3px;background:var(--line)}
+.dots i.on{background:var(--gold)}.dots i.done{background:#fff9}
+/* 討伐！ */
+.win{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;animation:up .35s ease-out}
+.win .big{font-family:var(--f-head);font-size:40px;letter-spacing:.2em;color:#ffe9a6;text-shadow:0 0 20px #e6b84c}
+.win .big.lost{color:#c9c2df;text-shadow:none;font-size:30px}
+.stars{color:var(--gold);letter-spacing:.12em;font-size:22px}
+.stars .off{color:#ffffff26}
+/* ホーム */
+.title{font-family:var(--f-head);font-weight:800;font-size:44px;letter-spacing:.14em;text-align:center;margin:6px 0 0;background:linear-gradient(180deg,#fff6d6,#e6b84c 70%,#a8741e);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 10px #e6b84c55)}
+.lead{text-align:center;color:var(--ink2);margin:0;font-size:14px;line-height:1.7}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;align-items:end}
+.trio div{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--ink2);min-width:0}
+.trio svg{width:100%;max-width:120px;height:auto;overflow:visible}
+.shade svg .body{filter:brightness(0)}.shade svg .eye{fill:#e2574c}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stats div{background:#ffffff0d;border:1px solid var(--line);border-radius:14px;padding:10px 6px;text-align:center}
+.stats b{display:block;font-size:20px}
+.stats small{color:var(--ink2);font-size:12px}
+.rank{text-align:center;font-size:13px;color:var(--gold);display:flex;align-items:center;justify-content:center;gap:8px}
+.rank svg{width:26px;height:26px}
+.share{background:#ffffff0d;border-radius:14px;padding:12px;white-space:pre-line;font-size:15px;line-height:1.6;text-align:center;border:1px solid var(--line)}
+.shares{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.shares a,.shares button{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;border:1px solid var(--line);background:#ffffff10;color:var(--ink);font-size:14px;font-weight:700;text-decoration:none;padding:0 6px;box-sizing:border-box;font-family:inherit;cursor:pointer}
+.minis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.minis div{display:flex;flex-direction:column;align-items:center;gap:2px;background:#ffffff0a;border:1px solid var(--line);border-radius:14px;padding:8px 4px;font-size:12px;min-width:0}
+.minis svg{width:70px;height:70px;overflow:visible}
+.minis .stars{font-size:14px}
+.minis .gone svg{opacity:.35;filter:grayscale(1)}
+/* 図鑑・条文帳 */
+.dex{display:grid;grid-template-columns:1fr;gap:8px}
+.dex>div{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;background:#ffffff0d;border:1px solid var(--line);border-radius:14px;padding:8px 12px;min-height:64px}
+.dex svg{width:60px;height:60px;overflow:visible}
+.dex b{font-family:var(--f-head);font-size:17px;letter-spacing:.06em}
+.dex span{font-size:12px;color:var(--ink2);line-height:1.5}
+.dex em{font-style:normal;font-size:12px;color:var(--gold);text-align:right;white-space:nowrap}
+.dex .no svg .body{filter:brightness(0) opacity(.6)}.dex .no svg .eye{fill:#ffffff33}
+.dex .sub{min-height:44px;font-size:13px;padding:0 10px}
+.book h3{font-family:var(--f-head);font-size:15px;margin:10px 0 6px;color:var(--gold);letter-spacing:.06em}
+.book details{background:#ffffff0d;border:1px solid var(--line);border-radius:12px;margin-bottom:6px}
+.book summary{cursor:pointer;min-height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;font-size:14px;list-style:none}
+.book summary::-webkit-details-marker{display:none}
+.book summary small{color:var(--ink2);min-width:64px}
+.book summary em{margin-left:auto;font-style:normal;font-size:12px;color:var(--gold)}
+.book .no summary{color:#ffffff55;cursor:default}
+.book details p{margin:0;padding:0 12px 12px;font-size:13px;line-height:1.7;color:var(--ink2)}
+.prog{height:8px;border-radius:4px;background:var(--line);overflow:hidden}.prog i{display:block;height:100%;background:var(--gold)}
+dialog{border:1px solid #ffffff22;border-radius:18px;background:#221d45;color:var(--ink);max-width:400px;width:calc(100% - 32px);padding:20px;box-sizing:border-box}
+dialog::backdrop{background:#000000bb}
+dialog h2{font-family:var(--f-head);margin:0 0 10px;letter-spacing:.08em}
+dialog ol{padding-left:1.3em;margin:0 0 12px;line-height:1.8}
+dialog p{margin:0 0 10px;font-size:13px;line-height:1.7;color:var(--ink2)}
+dialog a{color:var(--gold);min-height:44px;display:inline-flex;align-items:center}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;z-index:9;max-width:90%;text-align:center}
+/* 実績・カレンダー */
+.ach-new{background:#e6b84c22;color:#ffe9a6;border:1px solid #e6b84c66;border-radius:12px;padding:8px 10px;font-size:14px;font-weight:700;margin:0;text-align:center}
+.achs{display:flex;flex-direction:column;gap:8px}
+.ach{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;background:#ffffff0d;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.ach .ic{font-size:22px;text-align:center;filter:grayscale(1);opacity:.4}
+.ach.got{border-color:#e6b84c88;background:#e6b84c18}.ach.got .ic{filter:none;opacity:1}
+.ach b{display:block;font-size:15px}.ach small{color:var(--ink2);font-size:12px;line-height:1.5}
+.ach .pg{font-size:12px;color:var(--ink2);text-align:right;min-width:48px}
+.ach .pg i{display:block;height:5px;border-radius:3px;background:var(--line);margin-top:4px;overflow:hidden}
+.ach .pg i span{display:block;height:100%;background:var(--gold)}
+.ach.got .pg{color:var(--gold);font-weight:700}
+.calnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.calnav b{font-size:19px}
+.calnav .icon:disabled{opacity:.3;cursor:default}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal .wd{font-size:11px;color:var(--ink2)}
+.cal .d{all:unset;box-sizing:border-box;min-height:44px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;color:var(--ink2);position:relative;line-height:1.1;min-width:0}
+.cal .d.on{background:linear-gradient(180deg,#f0c860,#c98d22);color:#2a1c05;font-weight:700}
+.cal .d.later{border:1.5px dashed var(--gold);color:var(--ink)}
+.cal .d.can{border:1.5px dotted var(--ink2);color:var(--ink);cursor:pointer;background:#ffffff10}
+.cal .d.today{outline:2px solid var(--ink);outline-offset:-2px}
+.cal .d small{font-size:10px}
+.cal .d .h{position:absolute;top:3px;right:4px;width:7px;height:7px;border-radius:50%;background:#b778ff;box-shadow:0 0 0 1.5px var(--bg)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;font-size:12px;color:var(--ink2)}
+footer{margin-top:auto;text-align:center;font-size:12px;color:var(--ink2);display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+footer a{color:var(--ink2);min-height:44px;display:inline-flex;align-items:center}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+:is(.icon,button,a,summary):focus-visible{outline:2px solid var(--gold)!important;outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<dialog id="howto" aria-labelledby="howto-t">
+  <h2 id="howto-t">遊び方</h2>
+  <ol>
+    <li>魔物が悪事をはたらきます。</li>
+    <li>その悪事に当てはまる条文のカードを選んで斬ります。</li>
+    <li>当たれば魔物の体力が1つ減り、外れると反撃で盾が1つ減ります。3回斬れば討伐、盾が尽きると逃げられます。</li>
+  </ol>
+  <p>「見抜く」で、ちがうカードを1枚消せます（1体に1回・★が1つ減ります）。今日の3体はだれでも同じで1日1回。時間制限はありません。</p>
+  <p>条文は e-Gov 法令検索の本文から写しています。遊びのための例で、法律相談ではありません。</p>
+  <p><a id="fb2" target="_blank" rel="noopener">感想を送る</a></p>
+  <button class="main" id="howto-ok" style="width:100%">わかった</button>
+</dialog>
+<script src="data.js"></script>
+<script src="battle.js"></script>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id), app = $("app");
+const SITE = "https://satou-aaaaa.github.io/jobun-tobatsu/";
+const FEEDBACK = "https://github.com/satou-aaaaa/jobun-tobatsu/issues/new?template=feedback.yml";
+const KEY = "tobatsu-v1", EPOCH = "2026-11-05";
+const D = window.TOBATSU, G = window.BATTLE, MON = D.MONSTERS, LAWS = D.LAWS, LAWIDS = Object.keys(LAWS);
+const ME = 3; // 盾の数（1体ごと）
+
+// ---- 日付（日本時間。だれでも同じ3体）----
+const jstNow = () => new Date(Date.now() + 9 * 3600e3);
+const todayKey = () => jstNow().toISOString().slice(0, 10);
+const dayNo = (k) => Math.round((Date.parse(k) - Date.parse(EPOCH)) / 864e5) + 1;
+const prevDay = G.prevDay, nextDay = (k) => new Date(Date.parse(k) + 864e5).toISOString().slice(0, 10);
+const DAYRE = /^\d{4}-\d\d-\d\d$/;
+
+// ---- 記録（この端末の localStorage だけ）----
+// days・hdays・pdays：日ごとの結果 { st:[★…] }（0 は逃げられた）。pdays は取りこぼした日をあとから（連続・今日の記録・Ko-fi には数えない）
+// dex：魔物 → { w:討伐数, b:いちばん多い★ }。laws：条文 → 当てた回数。miss：外した問題 "魔物:問題"（おさらい用・新しい順に12まで）
+// runs：遊んでいる途中の回をモードごとに（d・h・p・a:日付）。ach：結果で知らせ終えた実績。kofi：Ko-fi の1行を出した回
+const fresh = () => ({ v: 1, days: {}, hdays: {}, pdays: {}, dex: {}, laws: {}, xp: 0, miss: [], runs: {}, tut: false, kofi: {}, ach: {}, t: 0 });
+let mem = null; // 保存できない環境では、開いているあいだだけここに置く
+function parse(j) { try { const o = JSON.parse(j); return o && o.v === 1 ? o : null; } catch (e) { return null; } }
+// 読むときは足りない入れ物を fresh() で補う（古い記録・知らない入れ物を消さない）。保存に失敗したあとはメモリの方が新しい
+function load() { let b = null; try { b = parse(localStorage.getItem(KEY)); } catch (e) {} const a = mem !== null ? parse(mem) : null; const s = Object.assign(fresh(), (a && (!b || (a.t || 0) >= (b.t || 0)) ? a : b) || {}); for (const k of ["days", "hdays", "pdays", "dex", "laws", "runs", "kofi", "ach"]) if (!s[k] || typeof s[k] !== "object") s[k] = {}; if (!Array.isArray(s.miss)) s.miss = []; return s; }
+// 保存の前に読み直す（別のタブで進めた記録を消さない）
+function save(fn) { const s = load(); fn(s); s.t = Math.max(Date.now(), (s.t || 0) + 1); const j = JSON.stringify(s); try { localStorage.setItem(KEY, j); mem = null; } catch (e) { mem = j; } return s; }
+const bookOf = (s, m) => (m === "d" ? s.days : m === "h" ? s.hdays : m === "a" ? s.pdays : null);
+const runKey = (mode, date) => (mode === "a" ? "a:" + date : mode);
+const recs = (b) => Object.entries(b || {}).filter(([k, r]) => DAYRE.test(k) && r && Array.isArray(r.st)).map(([, r]) => r);
+function streak(days) { let k = todayKey(), n = 0; if (!days[k]) k = prevDay(k); while (days[k]) { n++; k = prevDay(k); } return n; }
+function maxStreak(days) { let best = 0; for (const k of Object.keys(days)) { if (!DAYRE.test(k) || days[prevDay(k)]) continue; let n = 0, d = k; while (days[d]) { n++; d = nextDay(d); } best = Math.max(best, n); } return best; }
+const playDays = (s) => new Set([...Object.keys(s.days), ...Object.keys(s.hdays), ...Object.keys(s.pdays)].filter((k) => DAYRE.test(k))).size;
+const wins = (s) => Object.values(s.dex).reduce((t, d) => t + (d.w || 0), 0);
+const perfect = (s) => [s.days, s.hdays, s.pdays].reduce((t, b) => t + recs(b).reduce((u, r) => u + r.st.filter((x) => x === 3).length, 0), 0) + (s.pstar || 0); // ★3で討伐した数（練習も入れる）
+const cleanDays = (s) => recs(s.days).concat(recs(s.pdays)).filter((r) => r.st.length && r.st.every((x) => x === 3)).length;
+const RANKS = [[0, "見習い討伐士"], [20, "討伐士"], [80, "熟練の討伐士"], [200, "条文剣士"], [500, "法典の守り手"]];
+const rankIx = (n) => RANKS.filter((r) => n >= r[0]).length - 1;
+const nextRank = (n) => RANKS.find((r) => r[0] > n);
+// 実績：いまの記録から毎回数える（腕前・集める・続けるをまぜる）。[id, 絵, 名前, 条件, (記録) => [いま, 目標]]
+const ACH = [
+  ["w1", "⚔️", "初めての討伐", "魔物を1体討伐する", (s) => [wins(s), 1]],
+  ["p1", "🌟", "完全討伐", "★3で1体討伐する", (s) => [perfect(s), 1]],
+  ["p20", "💫", "★3を20体", "★3で20体討伐する", (s) => [perfect(s), 20]],
+  ["clean", "👑", "一日の完勝", "今日の3体を全部★3で", (s) => [cleanDays(s), 1]],
+  ["h1", "🐉", "大魔討伐", "上級の無法大君を討伐する", (s) => [recs(s.hdays).filter((r) => r.st[0] > 0).length, 1]],
+  ["h5", "🔥", "大魔を5回", "無法大君を5回討伐する", (s) => [recs(s.hdays).filter((r) => r.st[0] > 0).length, 5]],
+  ["m6", "📕", "図鑑に6体", "6種類の魔物を討伐する", (s) => [Object.values(s.dex).filter((d) => d.w > 0).length, 6]],
+  ["mAll", "📚", "図鑑を全部", `${MON.length}種類の魔物を全部討伐する`, (s) => [Object.values(s.dex).filter((d) => d.w > 0).length, MON.length]],
+  ["l30", "📜", "条文30条", "条文帳に30条を集める", (s) => [Object.keys(s.laws).filter((k) => LAWS[k]).length, 30]],
+  ["lAll", "⚖️", "条文帳を全部", `${LAWIDS.length}条を全部集める`, (s) => [Object.keys(s.laws).filter((k) => LAWS[k]).length, LAWIDS.length]],
+  ["d3", "🌙", "3日の討伐", "3日遊ぶ", (s) => [playDays(s), 3]],
+  ["d30", "🌕", "30日の討伐", "30日遊ぶ", (s) => [playDays(s), 30]],
+  ["st7", "🗓", "7日つづけて", "今日の3体を7日つづけて", (s) => [maxStreak(s.days), 7]],
+];
+const achOf = (s) => ACH.map(([id, ic, name, cond, f]) => { const [n, g] = f(s); return { id, ic, name, cond, n: Math.min(n, g), g, got: n >= g }; });
+// 取りこぼした日：きのうから7日前までで、今日の3体を遊んでいない日（始めた日 EPOCH より前は出さない）
+function missedDays(s, k = todayKey()) { const out = []; let d = k; for (let i = 0; i < 7; i++) { d = prevDay(d); if (d < EPOCH) break; if (!s.days[d] && !s.pdays[d]) out.push(d); } return out; }
+
+// ---- 魔物の絵（SVG。形・色・目・角の組み合わせで描く。ほかの作品の絵は使わない）----
+const shade = (hex, f) => { const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255].map((v) => Math.round(f > 0 ? v + (255 - v) * f : v * (1 + f))); return "#" + c.map((v) => v.toString(16).padStart(2, "0")).join(""); };
+const BODY = [
+  "M100 34C150 34 176 74 172 118C168 162 136 184 100 184C64 184 32 162 28 118C24 74 50 34 100 34Z",
+  "M100 24C138 62 168 92 166 130C164 166 136 186 100 186C64 186 36 166 34 130C32 92 62 62 100 24Z",
+  null,
+  "M100 28C150 28 170 70 168 112C166 148 152 166 134 174C142 184 154 190 164 196C134 200 114 190 102 180C90 192 70 200 42 194C54 186 62 178 66 172C46 162 32 142 32 112C30 70 50 28 100 28Z",
+  "M42 52Q42 36 58 36L142 36Q158 36 158 52L166 162Q166 184 144 184L56 184Q34 184 34 162Z",
+];
+function spiky() { let d = ""; for (let i = 0; i < 20; i++) { const a = (i / 20) * Math.PI * 2 - Math.PI / 2, r = i % 2 ? 66 : 84; d += (i ? "L" : "M") + (100 + Math.cos(a) * r).toFixed(1) + " " + (110 + Math.sin(a) * r * 0.92).toFixed(1); } return d + "Z"; }
+let SVGN = 0;
+// opt.dmg：受けた傷の割合（0〜1）。斬られるたびに、ひび・欠け・折れた角・煙が増え、色があせて体が傾く
+const CRACKS = ["M42 82L54 92L48 100L60 112", "M160 78L148 90L154 98L142 108", "M96 150L104 138L98 130L110 122", "M48 118L62 122L58 132L72 136", "M152 124L138 128L144 140L130 146", "M100 50L94 62L102 70L96 82"];
+const BITES = [[30, 92, 17], [170, 142, 19], [68, 186, 17]];
+function monSvg(m, opt = {}) {
+  const L = m.look, id = "g" + SVGN++, c = L.c, big = m === D.BOSS, k = Math.max(0, Math.min(1, opt.dmg || 0));
+  const body = L.b === 2 ? spiky() : BODY[L.b], hc = shade(c, -0.45), broke = k >= 0.5;
+  const eyes = L.e === 1 ? [[100, 100, 22]] : L.e === 2 ? [[76, 102, 15], [124, 102, 15]] : [[70, 108, 12], [130, 108, 12], [100, 82, 13]];
+  // 角：傷が半分を超えると、1本が根元近くで折れる
+  const horns = L.h === 0 ? "" : L.h === 1 ? `<path d="${broke ? "M100 40L94 24L101 27L106 22L112 40Z" : "M100 40L88 6L112 6Z"}" fill="${hc}" transform="translate(0 4)"/>` : `<path d="${broke ? "M62 52L54 32L60 34L63 27L82 40Z" : "M62 52L44 8L82 40Z"}" fill="${hc}"/><path d="M138 52L156 8L118 40Z" fill="${hc}"/>`;
+  const crown = big ? `<path d="M64 40L72 14L88 32L100 6L112 32L128 14L136 40Z" fill="#e6b84c" stroke="#7a5410" stroke-width="2"${broke ? ` transform="rotate(${k >= 1 ? 26 : 14} 100 30) translate(${k >= 1 ? 18 : 8} 4)"` : ""}/>` : "";
+  const dead = k >= 1, lid = k >= 0.45;
+  const ey = eyes.map(([x, y, r], i) => dead ? `<path class="eye" d="M${x - r * 0.6} ${y - r * 0.6}L${x + r * 0.6} ${y + r * 0.6}M${x + r * 0.6} ${y - r * 0.6}L${x - r * 0.6} ${y + r * 0.6}" stroke="#1a0f2e" stroke-width="${Math.max(4, r * 0.35)}" stroke-linecap="round"/>`
+    : `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff6d0"/><circle class="eye" cx="${x}" cy="${y + 2}" r="${r * 0.48}" fill="#1a0f2e"/><circle cx="${x - r * 0.25}" cy="${y - r * 0.3}" r="${r * 0.18}" fill="#fff"/>${lid && i === 0 ? `<path d="M${x - r - 1.5} ${y + 1}A${r + 1.5} ${r + 1.5} 0 0 1 ${x + r + 1.5} ${y + 1}Z" fill="${shade(c, -0.35)}" stroke="#1a0f2e" stroke-width="2"/>` : ""}`).join("");
+  const mouth = k >= 0.6 ? `<path d="M74 152Q86 140 98 150Q110 160 126 146" fill="none" stroke="#1a0f2e" stroke-width="5" stroke-linecap="round" opacity=".85"/>` : `<path d="M70 140Q100 160 130 140L122 148L114 141L106 150L98 142L90 150L82 141L76 147Z" fill="#1a0f2e" opacity=".85"/>`;
+  const nc = Math.round(k * CRACKS.length), nb = (k >= 0.3) + (k >= 0.6) + (k >= 0.95);
+  const cracks = CRACKS.slice(0, nc).map((d) => `<path class="crack" d="${d}" fill="none" stroke="#1a0f2e" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#ffffff55" stroke-width="1.2" transform="translate(1.5 1)"/>`).join("");
+  const smoke = k >= 0.6 ? [[60, 40], [140, 34], [104, 22]].slice(0, k >= 0.95 ? 3 : 2).map(([x, y], i) => `<circle class="smoke" cx="${x}" cy="${y}" r="${9 + i * 2}" fill="#8a84a3" opacity=".45" style="animation-delay:${i * 0.5}s"/>`).join("") : "";
+  const mask = nb ? `<mask id="${id}m"><rect x="-20" y="-20" width="240" height="240" fill="#fff"/>${BITES.slice(0, nb).map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#000"/>`).join("")}</mask>` : "";
+  const pose = k ? ` transform="rotate(${(k * 7).toFixed(1)} 100 190) translate(0 ${(k * 8).toFixed(1)})"` : "";
+  const tone = k ? ` style="filter:saturate(${(1 - 0.5 * k).toFixed(2)}) brightness(${(1 - 0.22 * k).toFixed(2)})"` : "";
+  return `<svg viewBox="-10 -10 220 220" role="img" aria-label="${m.name}" data-dmg="${k.toFixed(2)}" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="${id}" cx="40%" cy="32%" r="75%"><stop offset="0" stop-color="${shade(c, 0.45)}"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${shade(c, -0.55)}"/></radialGradient><radialGradient id="${id}a"><stop offset="0" stop-color="${c}" stop-opacity="${(0.55 * (1 - 0.6 * k)).toFixed(2)}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>${mask}</defs>
+    ${opt.flat ? "" : `<ellipse cx="100" cy="196" rx="58" ry="9" fill="#000" opacity=".35"/><circle cx="100" cy="110" r="108" fill="url(#${id}a)"/>`}
+    <g class="${opt.flat ? "" : k >= 0.6 ? "bob weak" : "bob"}"><g${pose}><g${tone}><g class="body"${nb ? ` mask="url(#${id}m)"` : ""}>${horns}<path d="${body}" fill="url(#${id})" stroke="${shade(c, -0.6)}" stroke-width="3"/>${cracks}</g>${crown}${ey}${mouth}</g></g></g>${smoke}</svg>`;
+}
+const swordSvg = (lv) => `<svg viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="sw${lv}" x1="0" x2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="${["#9aa3b5", "#b8d8ff", "#9ff0c8", "#ffe39a", "#ffb3ff"][lv]}"/></linearGradient></defs><path d="M30 4L36 4L36 10L16 30L10 24Z" fill="url(#sw${lv})" stroke="#2a2238" stroke-width="1.2"/><path d="M8 20L20 32L17 35L5 23Z" fill="#e6b84c" stroke="#7a5410"/><path d="M9 29L4 34L6 36L11 31Z" fill="#7a4b2a"/></svg>`;
+const starStr = (s) => `<span class="stars" aria-label="星${s}つ">${"★".repeat(s)}<span class="off">${"★".repeat(3 - s)}</span></span>`;
+const mark = (st) => ["⬛", "🟧", "🟨", "🟩"][st];
+
+// ---- 画面のきまり ----
+let VIEW = 0; // 描き直すたびに増やす。少し遅れて動く処理は、画面が替わっていたら何もしない
+const later = (ms, fn) => { const v = VIEW; setTimeout(() => { if (v === VIEW) fn(); }, ms); };
+const draw = (html) => { VIEW++; app.innerHTML = html; window.scrollTo(0, 0); };
+const md = (k) => `${+k.slice(5, 7)}/${+k.slice(8, 10)}`;
+function toast(t) { const d = document.createElement("div"); d.className = "toast"; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 1800); }
+const buzz = (n = 12) => { try { navigator.vibrate && navigator.vibrate(n); } catch (e) {} };
+const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+const footer = () => `<footer><a href="#" id="f-how">遊び方</a><a href="${FEEDBACK}" target="_blank" rel="noopener">感想を送る</a><a href="https://ko-fi.com/satouaaaaa" target="_blank" rel="noopener">Ko-fi で応援</a></footer>`;
+function bindFooter() { const h = $("f-how"); if (h) h.onclick = (e) => { e.preventDefault(); openHow(); }; }
+function openHow() { $("fb2").href = FEEDBACK; const d = $("howto"); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); }
+$("howto-ok").onclick = () => { const d = $("howto"); d.close ? d.close() : d.removeAttribute("open"); save((s) => { s.tut = true; }); };
+const back = (t, sub = "") => `<header><button class="icon" id="back" aria-label="もどる">←</button><h1>${t}${sub ? `<small>${sub}</small>` : ""}</h1><span style="min-width:44px"></span></header>`;
+
+// ---- ホーム ----
+function home() {
+  const s = load(), k = todayKey(), done = s.days[k], hdone = s.hdays[k];
+  for (const m of Object.keys(s.runs)) { const r = s.runs[m]; if (r && r.res.length >= r.plan.length) { RK = m; return finish(); } } // 終えた回の結果をまだ見ていなければ、先に見せる
+  const rd = s.runs.d && s.runs.d.date === k ? s.runs.d : null, rh = s.runs.h && s.runs.h.date === k ? s.runs.h : null;
+  const trio = G.dailyMons(k).map((i) => MON[i]);
+  const ri = rankIx(s.xp), nr = nextRank(s.xp), miss = missedDays(s, k).length;
+  draw(`
+    <h1 class="title">条文討伐</h1>
+    <p class="lead">悪事をはたらく魔物を、正しい条文で斬る。<br>だれでも同じ1日3体。</p>
+    <div class="trio ${done ? "" : "shade"}">${trio.map((m) => `<div>${monSvg(m)}<span>${done ? esc(m.name) : "？？？"}</span></div>`).join("")}</div>
+    ${done ? `<div class="share">今日の討伐　${done.st.map(mark).join("")}</div>` : ""}
+    <button class="main" id="go-d">${done ? "今日の結果を見る" : rd ? `続きから（${rd.res.length + 1}体目）` : `今日の3体を討伐する <small>#${dayNo(k)}</small>`}</button>
+    ${done ? `<button class="main alt" id="go-h">${hdone ? "上級の結果を見る" : rh ? "上級の続きから" : "上級：無法大君（ヒントなし・カード4枚）"}</button>` : ""}
+    <div class="row"><button class="sub" id="go-p">練習${s.miss.length ? ` <small style="color:var(--gold)">おさらい${s.miss.length}</small>` : ""}</button><button class="sub" id="go-dex">魔物図鑑 ${Object.values(s.dex).filter((d) => d.w > 0).length}/${MON.length}</button></div>
+    <div class="row"><button class="sub" id="go-book">条文帳 ${Object.keys(s.laws).filter((x) => LAWS[x]).length}/${LAWIDS.length}</button><button class="sub" id="go-ach">実績 ${achOf(s).filter((a) => a.got).length}/${ACH.length}</button></div>
+    <button class="sub" id="go-cal">カレンダー${miss ? ` <small style="color:var(--gold)">あとから遊べる日 ${miss}</small>` : ""}</button>
+    <div class="stats"><div><b>${playDays(s)}</b><small>遊んだ日</small></div><div><b>${wins(s)}</b><small>討伐した数</small></div><div><b>${s.xp}</b><small>当てた条文</small></div></div>
+    <p class="rank">${swordSvg(ri)}<span>${RANKS[ri][1]}${nr ? `（あと${nr[0] - s.xp}回当てると${nr[1]}）` : ""}</span></p>
+    ${footer()}`);
+  $("go-d").onclick = () => (k !== todayKey() ? home() : done ? result("d", k) : startRun("d"));
+  if ($("go-h")) $("go-h").onclick = () => (hdone ? result("h", k) : k === todayKey() ? startRun("h") : home());
+  $("go-p").onclick = practiceMenu;
+  $("go-dex").onclick = dexView;
+  $("go-book").onclick = bookView;
+  $("go-ach").onclick = achView;
+  $("go-cal").onclick = () => calendar();
+  bindFooter();
+  if (!s.tut) openHow();
+}
+
+// ---- 回を始める ----
+let RK = "d", SEQ = 0; // RK：遊んでいる回の置き場（runs のキー）
+const newCur = () => ({ p: 0, hp: null, me: ME, miss: 0, hint: false, gone: null, ans: null });
+const hpOf = (b) => (b.m === -1 ? D.BOSS.hp : b.m === -2 ? b.hp : 3);
+function startRun(mode, opt) {
+  const k = mode === "a" ? opt : todayKey(), rk = runKey(mode, k);
+  const live = (s) => s.runs[rk] && s.runs[rk].date === k && s.runs[rk].res.length < s.runs[rk].plan.length;
+  if (mode === "a" && !live(load()) && !missedDays(load()).includes(k)) return calendar(); // 7日より前・遊んだ日・今日や未来は始めない
+  if (opt === "review" && !load().miss.length) return practiceMenu(); // おさらいする問題が無い
+  save((s) => {
+    if (mode !== "p" && live(s)) return; // 続きから
+    if ((mode === "d" && s.days[k]) || (mode === "h" && s.hdays[k]) || (mode === "a" && (s.days[k] || s.pdays[k]))) return; // 別のタブで終えていたら、もう一度は始めない
+    let plan;
+    if (mode === "d" || mode === "a") plan = G.dailyPlan(k);
+    else if (mode === "h") plan = G.hardPlan(k);
+    else if (opt === "review") { const list = s.miss.slice(0, 5).map((x) => x.split(":").map(Number)).filter(([m, q]) => MON[m] && MON[m].qs[q]); plan = [{ m: -2, hp: list.length, seed: Math.floor(Math.random() * 2 ** 31), order: [...list, ...list, ...list] }]; }
+    else plan = G.practicePlan(Math.floor(Math.random() * 2 ** 31), opt);
+    s.runs[rk] = { mode, date: k, plan, res: [], cur: newCur(), id: Date.now().toString(36) + "-" + (++SEQ).toString(36) };
+  });
+  RK = rk;
+  const s = load();
+  if (!s.runs[rk] || (mode !== "p" && !live(s))) return mode === "a" ? calendar() : home();
+  play();
+}
+
+// ---- 戦い ----
+const battle = (r) => r.plan[r.res.length];
+const askOf = (b, p) => (b.m >= 0 ? MON[b.m] : MON[b.order[Math.min(p, b.order.length - 1)][0]]).ask; // 魔物ごとの問いかけ（何を答えるか）
+const monOf = (b, p) => (b.m === -1 ? D.BOSS : b.m === -2 ? MON[b.order[Math.min(p, b.order.length - 1)][0]] : MON[b.m]);
+const nCards = (r) => (r.mode === "h" ? 4 : 3);
+const cardsNow = (r) => { const b = battle(r), q = G.qOf(b, r.cur.p); return { b, q, cards: G.cardsOf(q, (b.seed + r.cur.p * 7919) >>> 0, nCards(r)) }; };
+const starsOf = (c) => { const e = c.miss + (c.hint ? 1 : 0); return e === 0 ? 3 : e === 1 ? 2 : 1; };
+function title(r) { const n = r.plan.length; return r.mode === "d" ? `今日の3体 ${r.res.length + 1}/${n}` : r.mode === "h" ? "上級：無法大君" : r.mode === "a" ? `${md(r.date)} の3体 ${r.res.length + 1}/${n}` : r.plan[0].m === -2 ? "おさらい" : "練習"; }
+function play(fx) {
+  const s = load(), r = s.runs[RK];
+  if (!r) return home();
+  if (r.view) return beaten(r); // 最後の1体も、討伐の画面を見てから結果へ
+  if (r.res.length >= r.plan.length) return finish();
+  const { b, q, cards } = cardsNow(r), c = r.cur, m = monOf(b, c.p), hpMax = hpOf(b), hp = c.hp === null ? hpMax : c.hp;
+  const a = c.ans, L = LAWS[q.a];
+  draw(`${back(title(r), r.mode === "p" ? "記録には入りません（図鑑・条文帳には載ります）" : r.mode === "a" ? "あとから（連続の日には入りません）" : "")}
+    ${r.plan.length > 1 ? `<div class="dots">${r.plan.map((_, i) => `<i class="${i < r.res.length ? "done" : i === r.res.length ? "on" : ""}"></i>`).join("")}</div>` : ""}
+    <div class="arena"><div class="mon${!a && c.p === 0 && !fx ? " enter" : ""}" id="mon">${monSvg(m, { dmg: (hpMax - hp) / hpMax })}</div>
+      <div class="mname">${esc(m.name)}<small>${esc(m.kana)}・${esc(m.field)}</small></div>
+      <div class="hpbar" aria-label="魔物の体力 ${hp}/${hpMax}">${Array.from({ length: hpMax }, (_, i) => `<i class="${i < hp ? "" : "off"}"></i>`).join("")}</div></div>
+    <div class="deed" id="deed">${esc(q.s)}</div>
+    ${a ? "" : `<p class="ask">${esc(askOf(b, c.p))}<small>条文を選んで斬る</small></p>`}
+    <div class="cards${a ? " done" : ""}" id="cards">${cards.map((id) => { const x = LAWS[id], gone = c.gone === id; return `<button class="card${a && id === q.a ? " right" : ""}${a && id === a.pick && !a.ok ? " wrong" : ""}${gone ? " gone" : ""}" data-id="${id}" ${a || gone ? "disabled" : ""} aria-label="${x.law}${x.no} ${x.name}"><span class="no">${x.law}<b>${x.no}</b></span><span class="nm">${esc(x.name)}</span></button>`; }).join("")}</div>
+    ${a ? `<div class="law${a.ok ? "" : " ng"}" id="law"><div class="hd"><b>${a.ok ? "命中" : "反撃"}</b>${L.law}${L.no}（${esc(L.cap || L.name)}）</div><q>${esc(L.text)}</q><p>${esc(q.w)}</p>${a.ok ? "" : `<p class="pick">選んだ${LAWS[a.pick].law}${LAWS[a.pick].no}（${esc(LAWS[a.pick].name)}）は「${esc(LAWS[a.pick].text.split("…")[0])}」の決まり。</p>`}<button class="main" id="next">${a.ok && hp <= 0 ? "とどめ！" : c.me <= 0 ? "逃げられた…" : "次へ"}</button></div>` : ""}
+    <div class="foot"><div class="shield" aria-label="盾 ${c.me}/${ME}"><small>盾</small>${Array.from({ length: ME }, (_, i) => `<span class="${i < c.me ? "" : "off"}">🛡️</span>`).join("")}</div>
+      ${r.mode === "h" ? `<small class="note">ヒントなし</small>` : `<button class="sub" id="hint" ${a || c.hint ? "disabled" : ""}>👁 見抜く${c.hint ? "（使った）" : "（★-1）"}</button>`}</div>`);
+  $("back").onclick = home;
+  if (!a) document.querySelectorAll(".card:not(:disabled)").forEach((el) => (el.onclick = () => answer(el.dataset.id, r.id, c.p)));
+  if ($("hint")) $("hint").onclick = () => useHint(r.id, c.p);
+  if ($("next")) $("next").onclick = () => next(r.id, c.p);
+  if (fx) effect(fx, $("mon"), q.a, c.combo || 0);
+  if (a && fx) later(250, () => { const l = $("law"); if (l && l.scrollIntoView) l.scrollIntoView({ block: "nearest", behavior: "smooth" }); });
+}
+// 攻撃の技は条文の法律で変わる。刑法＝刃・民法＝鎖・憲法＝光の柱・労働基準法＝鐘の波・消費者の法律＝封じの札
+const ARTS = { 刑法: ["kei", "断罪の刃"], 民法: ["min", "契約の鎖"], 憲法: ["ken", "憲章の光"], 労働基準法: ["rou", "定時の鐘"], 特定商取引法: ["sho", "守りの札"], 消費者契約法: ["sho", "守りの札"] };
+function artHtml(kind) {
+  if (kind === "kei") return `<div class="slash"></div><div class="slash s2"></div>`;
+  if (kind === "min") return `<div class="chain"></div><div class="chain c2"></div>`;
+  if (kind === "ken") return `<div class="pillar"></div>`;
+  if (kind === "rou") return `<div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>`;
+  return `<div class="charm">封</div>`;
+}
+function effect(kind, el, law, combo) {
+  if (!el) return;
+  if (kind === "hit") { const [k, name] = ARTS[LAWS[law].law] || ARTS.刑法; el.classList.add("hit", "fx-" + k); el.insertAdjacentHTML("beforeend", `${artHtml(k)}<div class="pop">${name}${combo >= 2 ? `<small>連撃×${combo}</small>` : ""}</div>`); buzz(18); }
+  if (kind === "miss") { el.classList.add("lunge"); el.insertAdjacentHTML("beforeend", `<div class="pop bad">反撃</div>`); document.body.insertAdjacentHTML("beforeend", `<div class="hurt"></div>`); setTimeout(() => document.querySelectorAll(".hurt").forEach((x) => x.remove()), 600); buzz([30, 40, 30]); }
+}
+// 答える。書き込む前に、保存した回と問題がこの画面と同じか確かめる（古いタブで二重に答えない）
+function answer(id, runId, p) {
+  let ok = null;
+  save((s) => {
+    const r = s.runs[RK];
+    if (!r || r.id !== runId || r.view || r.res.length >= r.plan.length || r.cur.p !== p || r.cur.ans) return;
+    const { b, q, cards } = cardsNow(r), c = r.cur;
+    if (!cards.includes(id) || id === c.gone) return;
+    if (c.hp === null) c.hp = hpOf(b);
+    ok = id === q.a;
+    c.ans = { pick: id, ok };
+    const mq = b.m === -1 || b.m === -2 ? b.order[p].join(":") : b.m + ":" + b.order[p];
+    s.miss = s.miss.filter((x) => x !== mq);
+    if (ok) { c.hp--; if (!s.laws[q.a]) c.nl = [...(c.nl || []), q.a]; s.laws[q.a] = (s.laws[q.a] || 0) + 1; s.xp = (s.xp || 0) + 1; c.combo = (c.combo || 0) + 1; } // nl：この戦いで初めて条文帳に載った条文。combo：続けて当てた数
+    else { c.me--; c.miss++; c.combo = 0; s.miss = [mq, ...s.miss].slice(0, 12); } // 外した問題は、おさらいでもう一度（間をあけて解き直すと覚えやすい）
+  });
+  if (ok === null) return play();
+  play(ok ? "hit" : "miss");
+}
+function useHint(runId, p) {
+  save((s) => { const r = s.runs[RK]; if (!r || r.id !== runId || r.mode === "h" || r.cur.p !== p || r.cur.ans || r.cur.hint) return; const { q, cards, b } = cardsNow(r); r.cur.hint = true; r.cur.gone = G.hintOf(cards, q, (b.seed + p) >>> 0); });
+  play();
+}
+// 次へ：体力が尽きたら討伐、盾が尽きたら逃げられる。どちらでもなければ次の悪事
+function next(runId, p) {
+  save((s) => {
+    const r = s.runs[RK];
+    if (!r || r.id !== runId || r.view || r.cur.p !== p || !r.cur.ans) return;
+    const c = r.cur, b = battle(r), end = c.hp <= 0 ? "win" : c.me <= 0 || c.p + 1 >= b.order.length ? "lost" : null;
+    if (!end) { c.p++; c.ans = null; c.gone = null; return; }
+    const st = end === "win" ? starsOf(c) : 0;
+    r.res.push({ st, miss: c.miss, hint: c.hint, dmg: (hpOf(b) - (c.hp === null ? hpOf(b) : c.hp)) / hpOf(b) }); // dmg：逃げられたときの傷（逃げる絵に使う）
+    if (end === "win") { const ids = b.m === -1 ? [D.BOSS.id] : b.m === -2 ? [] : [MON[b.m].id]; for (const id of ids) { const d = s.dex[id] || { w: 0, b: 0 }; d.w++; d.b = Math.max(d.b, st); s.dex[id] = d; } if (r.mode === "p" && st === 3 && b.m >= 0) s.pstar = (s.pstar || 0) + 1; }
+    r.view = end; r.nl = c.nl || []; r.cur = newCur();
+    const bk = r.res.length >= r.plan.length ? bookOf(s, r.mode) : null;
+    if (bk && !bk[r.date]) bk[r.date] = { st: r.res.map((x) => x.st) }; // 終えた日を日ごとの記録に（結果を見る前に別の日へ移っても失わない）
+  });
+  play();
+}
+// 討伐（または逃げられた）の画面
+function beaten(r) {
+  const last = r.res[r.res.length - 1], b = r.plan[r.res.length - 1], m = b.m === -1 ? D.BOSS : b.m === -2 ? null : MON[b.m], win = r.view === "win";
+  const more = r.res.length < r.plan.length, lastDmg = last.dmg || 0;
+  draw(`${back(title({ ...r, res: r.res.slice(0, -1) }))}
+    <div class="arena"><div class="mon ${win ? "vanish" : "flee"}" id="mon">${m ? monSvg(m, { dmg: win ? 1 : lastDmg }) : ""}</div></div>
+    <div class="win"><div class="big${win ? "" : " lost"}">${win ? "討伐！" : "逃げられた…"}</div>
+      ${m ? `<div class="mname">${esc(m.name)}<small>${esc(m.lore)}</small></div>` : ""}
+      ${win ? starStr(last.st) : `<p class="note">外した条文は「おさらい」で解き直せます。</p>`}
+      ${(r.nl || []).length ? `<p class="newlaw">📜 条文帳に新しく：${r.nl.map((k) => esc(LAWS[k].name)).join("・")}</p>` : ""}</div>
+    <button class="main" id="go">${more ? "次の魔物へ" : "結果を見る"}</button>`);
+  if (win) { const el = $("mon"); for (let i = 0; i < 14; i++) { const a = (i / 14) * Math.PI * 2; el.insertAdjacentHTML("beforeend", `<i class="spark" style="--x:${Math.cos(a) * 110}px;--y:${Math.sin(a) * 110}px;animation-delay:${200 + (i % 3) * 60}ms"></i>`); } buzz([20, 30, 60]); }
+  $("back").onclick = home;
+  $("go").onclick = () => { save((s) => { const x = s.runs[RK]; if (x && x.id === r.id) x.view = null; }); play(); };
+}
+
+// ---- 結果 ----
+function finish() {
+  const s0 = load(), r = s0.runs[RK];
+  if (!r) return home();
+  let kofi = false, fresh1 = [];
+  const s = save((s) => {
+    const x = s.runs[RK];
+    if (!x || x.id !== r.id) return;
+    const bk = bookOf(s, x.mode);
+    if (bk && !bk[x.date]) bk[x.date] = { st: x.res.map((y) => y.st) };
+    const kk = x.mode + ":" + x.date;
+    if ((x.mode === "d" || x.mode === "h") && !s.kofi[kk] && x.res.every((y) => y.st === 3)) { s.kofi[kk] = 1; kofi = true; } // 今日・上級を初めて全部★3で終えたときだけ、Ko-fi の1行
+    for (const a of achOf(s)) if (a.got && !s.ach[a.id]) { s.ach[a.id] = 1; fresh1.push(a); }
+    s.runs[RK] = null; delete s.runs[RK];
+  });
+  result(r.mode, r.date, { run: r, kofi, fresh1 });
+}
+function shareText(mode, k, st) { return `条文討伐 ${mode === "h" ? "上級" : "#" + dayNo(k)}\n${st.map(mark).join("")}\n${SITE}`; }
+function result(mode, k, opt = {}) {
+  const s = load(), rec = opt.run ? { st: opt.run.res.map((x) => x.st) } : (bookOf(s, mode) || {})[k];
+  if (!rec) return home();
+  const plan = opt.run ? opt.run.plan : mode === "h" ? G.hardPlan(k) : G.dailyPlan(k);
+  const mons = plan.map((b) => (b.m === -1 ? D.BOSS : b.m === -2 ? null : MON[b.m]));
+  const share = mode === "d" || mode === "h";
+  const txt = shareText(mode, k, rec.st);
+  draw(`${back(mode === "d" ? `今日の討伐 #${dayNo(k)}` : mode === "h" ? "上級の結果" : mode === "a" ? `${md(k)} の討伐` : "練習の結果")}
+    <div class="minis">${rec.st.map((st, i) => `<div class="${st ? "" : "gone"}">${mons[i] ? monSvg(mons[i], { flat: true }) : ""}<span>${mons[i] ? esc(mons[i].name) : "おさらい"}</span>${st ? starStr(st) : `<small>逃げられた</small>`}</div>`).join("")}</div>
+    ${opt.fresh1 && opt.fresh1.length ? `<p class="ach-new">🏅 実績：${opt.fresh1.map((a) => a.ic + a.name).join("・")}</p>` : ""}
+    ${share ? `<div class="share">${esc(txt.split("\n").slice(0, 2).join("\n"))}</div>
+    <div class="shares"><a href="https://x.com/intent/post?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">Xで投稿</a><a href="https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(SITE)}&text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">LINEで送る</a><button id="copy">${navigator.share ? "結果をシェア" : "コピー"}</button></div>` : ""}
+    ${mode === "d" && !s.hdays[k] && k === todayKey() ? `<button class="main alt" id="go-h">上級：無法大君に挑む</button>` : ""}
+    ${s.miss.length ? `<button class="sub" id="go-rev">外した条文をおさらい（${Math.min(5, s.miss.length)}問）</button>` : ""}
+    <button class="sub" id="home">ホームへ</button>
+    ${opt.kofi ? `<p class="note">楽しんでもらえたら <a href="https://ko-fi.com/satouaaaaa" target="_blank" rel="noopener">Ko-fi で応援</a> できます。</p>` : ""}
+    ${footer()}`);
+  $("back").onclick = home; $("home").onclick = home;
+  if ($("go-h")) $("go-h").onclick = () => startRun("h");
+  if ($("go-rev")) $("go-rev").onclick = () => startRun("p", "review");
+  if ($("copy")) $("copy").onclick = async () => { try { if (navigator.share) await navigator.share({ text: txt }); else { await navigator.clipboard.writeText(txt); toast("コピーしました"); } } catch (e) {} };
+  bindFooter();
+}
+
+// ---- 練習 ----
+function practiceMenu() {
+  const s = load();
+  draw(`${back("練習", "記録には入りません（図鑑・条文帳には載ります）")}
+    ${s.miss.length ? `<button class="main" id="rev">外した条文をおさらい（${Math.min(5, s.miss.length)}問）</button>` : `<p class="note">外した条文は、ここで「おさらい」できます。</p>`}
+    <p class="note">戦いたい魔物を選んでください。</p>
+    <div class="dex">${MON.map((m, i) => `<div>${monSvg(m, { flat: true })}<span><b>${esc(m.name)}</b><br>${esc(m.field)}</span><button class="sub" data-m="${i}">戦う</button></div>`).join("")}</div>${footer()}`);
+  $("back").onclick = home;
+  if ($("rev")) $("rev").onclick = () => startRun("p", "review");
+  document.querySelectorAll("[data-m]").forEach((b) => (b.onclick = () => startRun("p", +b.dataset.m)));
+  bindFooter();
+}
+// ---- 魔物図鑑 ----
+function dexView() {
+  const s = load(), all = [...MON, D.BOSS];
+  draw(`${back("魔物図鑑", "討伐した魔物が載ります")}
+    <div class="dex">${all.map((m) => { const d = s.dex[m.id]; const got = d && d.w > 0; return `<div class="${got ? "" : "no"}">${monSvg(m, { flat: true })}<span><b>${got ? esc(m.name) : "？？？"}</b><br>${esc(m.field)}${got ? `<br>${esc(m.lore)}` : ""}</span><em>${got ? `${starStr(d.b)}<br>${d.w}回` : ""}</em></div>`; }).join("")}</div>${footer()}`);
+  $("back").onclick = home; bindFooter();
+}
+// ---- 条文帳 ----
+function bookView() {
+  const s = load(), have = LAWIDS.filter((k) => s.laws[k]).length, groups = {};
+  LAWIDS.forEach((k) => (groups[LAWS[k].law] = groups[LAWS[k].law] || []).push(k));
+  draw(`${back("条文帳", `当てた条文が載ります ${have}/${LAWIDS.length}`)}
+    <div class="prog"><i style="width:${(have / LAWIDS.length) * 100}%"></i></div>
+    <div class="book">${Object.entries(groups).map(([law, ks]) => `<h3>${law}</h3>${ks.map((k) => { const L = LAWS[k], n = s.laws[k] || 0; return n ? `<details><summary><small>${L.no}</small>${esc(L.name)}<em>${n}回</em></summary><p>${esc(L.cap ? "（" + L.cap + "）" : "")}「${esc(L.text)}」</p></details>` : `<details class="no"><summary><small>${L.no}</small>？？？</summary></details>`; }).join("")}`).join("")}</div>
+    <p class="note">条文は <a href="https://laws.e-gov.go.jp/" target="_blank" rel="noopener">e-Gov 法令検索</a> の本文から一部を写しています（「…」は略）。</p>${footer()}`);
+  document.querySelectorAll(".book details.no").forEach((d) => d.addEventListener("toggle", () => (d.open = false)));
+  $("back").onclick = home; bindFooter();
+}
+// ---- 実績 ----
+function achView() {
+  const s = load(), list = achOf(s);
+  draw(`${back("実績", `${list.filter((a) => a.got).length}/${ACH.length}`)}
+    <div class="achs">${list.map((a) => `<div class="ach${a.got ? " got" : ""}"><span class="ic">${a.ic}</span><span><b>${a.name}</b><small>${a.cond}</small></span><span class="pg">${a.got ? "達成" : `${a.n}/${a.g}`}<i><span style="width:${(a.n / a.g) * 100}%"></span></i></span></div>`).join("")}</div>${footer()}`);
+  $("back").onclick = home; bindFooter();
+}
+// ---- カレンダー（ひと月ずつ。取りこぼした日はあとから遊べる）----
+function calendar(ym) {
+  const s = load(), k = todayKey(); ym = ym || k.slice(0, 7);
+  const [y, mo] = ym.split("-").map(Number), first = new Date(Date.UTC(y, mo - 1, 1)), days = new Date(Date.UTC(y, mo, 0)).getUTCDate();
+  const can = new Set(missedDays(s, k)), st = streak(s.days);
+  const prev = new Date(Date.UTC(y, mo - 2, 1)).toISOString().slice(0, 7), nxt = new Date(Date.UTC(y, mo, 1)).toISOString().slice(0, 7);
+  const cells = [];
+  for (let i = 0; i < first.getUTCDay(); i++) cells.push(`<span></span>`);
+  for (let d = 1; d <= days; d++) {
+    const key = `${ym}-${String(d).padStart(2, "0")}`, r = s.days[key], p = s.pdays[key], h = s.hdays[key];
+    const cls = r ? "on" : p ? "later" : can.has(key) ? "can" : "";
+    const sum = (x) => x.st.reduce((a, b) => a + b, 0);
+    cells.push(`<${can.has(key) ? "button" : "span"} class="d ${cls}${key === k ? " today" : ""}" data-k="${key}" aria-label="${md(key)}${r ? " 討伐" : p ? " あとから" : can.has(key) ? " あとから遊べる" : ""}">${d}${r ? `<small>★${sum(r)}</small>` : p ? `<small>↺★${sum(p)}</small>` : ""}${h ? `<i class="h"></i>` : ""}</${can.has(key) ? "button" : "span"}>`);
+  }
+  draw(`${back("カレンダー")}
+    <div class="calnav"><button class="icon" id="pm" ${prev < EPOCH.slice(0, 7) ? "disabled" : ""} aria-label="前の月">‹</button><b>${y}年${mo}月</b><button class="icon" id="nm" ${nxt > k.slice(0, 7) ? "disabled" : ""} aria-label="次の月">›</button></div>
+    <div class="cal">${"日月火水木金土".split("").map((w) => `<span class="wd">${w}</span>`).join("")}${cells.join("")}</div>
+    <div class="legend"><span>金：今日の3体</span><span>点線：あとから遊べる（7日まで）</span><span>紫の点：上級</span></div>
+    ${st ? `<p class="note">${st}日つづけて討伐中</p>` : ""}
+    <p class="note">あとから遊んだ日は、連続の日には入りません（図鑑・条文帳・実績には入ります）。</p>${footer()}`);
+  $("back").onclick = home;
+  $("pm").onclick = () => calendar(prev); $("nm").onclick = () => calendar(nxt);
+  document.querySelectorAll(".cal button.d").forEach((b) => (b.onclick = () => startRun("a", b.dataset.k)));
+  bindFooter();
+}
+
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+window.addEventListener("storage", (e) => { if (e.key === KEY && !document.querySelector(".card:disabled") && !$("next")) { /* 別のタブで進んだら、ホームにいるときだけ描き直す */ if ($("go-d")) home(); } });
+home();
+</script>
+</body>
+</html>
