@@ -369,6 +369,53 @@ for (const [day, art] of [["2026-11-12", "guard"], ["2026-11-19", "text"]]) {
   await ctx.close();
 }
 
+// F. 色だけで分けない（shared-workflows routines/game-dev.md A1）・知らせを #live に文字で出す（A7）・動きを減らす（A8）
+{
+  const { ctx, open } = await newCtx();
+  const p = await open(); await p.click("#howto-ok");
+  await p.evaluate(() => { window.__vib = 0; Object.defineProperty(navigator, "vibrate", { configurable: true, value: () => { window.__vib++; return true; } }); });
+  await p.click("#go-d");
+  const live = () => p.evaluate(() => document.getElementById("live").textContent);
+  const waitLive = (re) => p.waitForFunction((s) => new RegExp(s).test(document.getElementById("live").textContent), re.source, { timeout: 3000 }).then(() => true, () => false);
+  const dots = await p.$eval(".dots", (e) => ({ l: e.getAttribute("aria-label"), on: e.querySelector("i.on").getBoundingClientRect().height, rest: e.querySelector("i:not(.on)").getBoundingClientRect().height, b: getComputedStyle(e.querySelector("i:not(.on)")).borderTopStyle }));
+  check("進み具合の点は色だけでなく形でも分かる（今の体は大きく、まだの体は枠だけ）・読み上げで「何体目」", dots.l === "5体のうち1体目" && dots.on > dots.rest && dots.b === "solid", JSON.stringify(dots));
+  const w = await answer(p, false);
+  const cardOf = (sel) => p.$eval(sel, (e) => ({ t: e.textContent, l: e.getAttribute("aria-label"), b: getComputedStyle(e).borderTopStyle }));
+  const right = await cardOf(`.card.right[data-id="${w.q.a}"]`), wrong = await cardOf(`.card.wrong[data-id="${w.id}"]`);
+  check("札の正しい・まちがいは色だけでなく ✓/✕ の印・破線・読み上げの名前でも出す", right.t.includes("✓") && right.l.includes("正しい条文") && wrong.t.includes("✕") && wrong.l.includes("まちがい") && wrong.b === "dashed", JSON.stringify([right, wrong]));
+  check("外したときの見出しは「✕ 反撃」（色だけにしない）", (await p.textContent("#law .hd b")).includes("✕ 反撃"));
+  check("外したことを #live（role=status）に文字で知らせる（正しい条文の名前と盾の数）", (await waitLive(/反撃/)) && (await live()).includes(L[w.q.a].name) && (await live()).includes("盾 2/3"), await live());
+  check("減った盾には ✕ の印（明るさだけにしない）", (await p.$eval(".shield .off", (e) => getComputedStyle(e, "::after").content)).includes("✕"));
+  check("音のほかに #live の文字・画面の文字でも知らせ、振動はふだんは使う", (await p.evaluate(() => window.__vib)) > 0);
+  await nextBtn(p);
+  await p.click("#hint");
+  const gone = await p.$eval(".card.gone", (e) => ({ l: e.getAttribute("aria-label"), d: getComputedStyle(e.querySelector(".nm") || e).textDecorationLine + getComputedStyle(e).textDecorationLine }));
+  check("見抜いて消した札は取り消し線と読み上げの名前「消した」でも分かる・#live で知らせる", gone.l.includes("見抜いて消した") && gone.d.includes("line-through") && (await waitLive(/見抜いた/)), JSON.stringify(gone));
+  const h1 = await answer(p, true);
+  check("当てたら「✓ 命中」と #live に条文の名前・魔物の体力", (await p.textContent("#law .hd b")).includes("✓ 命中") && (await waitLive(/命中/)) && (await live()).includes(L[h1.q.a].name) && (await live()).includes("体力 2/3"), await live());
+  const hp = await p.$$eval(".hpbar i", (es) => es.map((e) => getComputedStyle(e).backgroundImage !== "none" || getComputedStyle(e).backgroundColor !== "rgba(0, 0, 0, 0)"));
+  check("体力の残りは塗り・減った分は枠だけ（色だけにしない）", hp.filter((x) => x).length === 2 && hp.filter((x) => !x).length === 1, JSON.stringify(hp));
+  await nextBtn(p); await beat(p);
+  check("取れなかった星は ☆（形でも分かる）・討伐を #live で知らせる", (await p.textContent(".win .stars .off")) === "☆☆" && (await waitLive(/討伐/)), await p.textContent(".win .stars"));
+  await ctx.close();
+}
+{ // 色の見分けを助ける（html.a11y-cvd）：青と朱の組に替える。動きを減らす：振動しない。カレンダーの上級は▲と読み上げの名前
+  const { ctx, open } = await newCtx();
+  const p = await open();
+  await p.evaluate(() => { localStorage.setItem("a11y-v1", JSON.stringify({ cvd: true, calm: true })); localStorage.setItem("tobatsu-v1", JSON.stringify({ v: 1, tut: true, days: { "2026-11-04": { st: [3, 3, 2, 1, 0] } }, hdays: { "2026-11-04": { st: [2] } } })); });
+  await p.reload();
+  await p.evaluate(() => { window.__vib = 0; Object.defineProperty(navigator, "vibrate", { configurable: true, value: () => { window.__vib++; return true; } }); });
+  await p.click("#go-d");
+  const w = await answer(p, false);
+  const col = await p.evaluate((ids) => [`.card.right[data-id="${ids[0]}"]`, `.card.wrong[data-id="${ids[1]}"]`].map((s) => getComputedStyle(document.querySelector(s)).borderTopColor), [w.q.a, w.id]);
+  check("「色の見分けを助ける」で、正しい札は青（#0072B2）・まちがいは朱（#D55E00）の縁に替わる", (await p.evaluate(() => document.documentElement.classList.contains("a11y-cvd"))) && col[0] === "rgb(0, 114, 178)" && col[1] === "rgb(213, 94, 0)", col.join(" "));
+  check("「動きを減らす」では振動しない（navigator.vibrate を呼ばない）", (await p.evaluate(() => window.__vib)) === 0);
+  await p.click("#back"); await p.click("#go-cal");
+  const cell = await p.$eval('[data-k="2026-11-04"]', (e) => ({ l: e.getAttribute("aria-label"), cp: e.querySelector(".h") && getComputedStyle(e.querySelector(".h")).clipPath }));
+  check("カレンダー：上級の日は▲の形（色の点だけにしない）と読み上げの名前「上級」・凡例も▲", cell.l.includes("上級") && /polygon/.test(cell.cp || "") && (await p.textContent(".legend")).includes("▲：上級"), JSON.stringify(cell));
+  await ctx.close();
+}
+
 // E. 古い記録・壊れた記録でも開ける
 {
   const { ctx, open } = await newCtx();
@@ -389,6 +436,12 @@ for (const [day, art] of [["2026-11-12", "guard"], ["2026-11-19", "text"]]) {
 await checkTransfer({ browser, url, game: "jobun-tobatsu", sample: { "tobatsu-v1": JSON.stringify({ v: 1, tut: true, days: { "2026-11-04": { st: [3, 2, 1, 3, 3] } }, dex: { kasume: { w: 2, b: 3 } }, laws: { k235: 2 }, xp: 2, seen: { kasume: 1 } }), "tobatsu-v1-snd": "0", "a11y-v1": JSON.stringify({ font: "ud", motion: "less" }) }, check, open: async (p) => { await p.evaluate(() => { const d = document.getElementById("howto"); if (d && d.open) document.getElementById("howto-ok").click(); }); } });
 check("ページのエラーが出ない", errors.length === 0, errors.slice(0, 3).join(" / "));
 await browser.close();
+
+{ // 見やすさ・読みやすさ・偏り（shared-workflows template/qa/a11y.mjs の写し。routines/game-dev.md「だれでも遊べるように」）
+  const { spawnSync } = await import("node:child_process");
+  const a = spawnSync(process.execPath, [path.join(root, "qa", "a11y.mjs")], { encoding: "utf8", env: process.env });
+  check("見やすさ・読みやすさの検査（qa/a11y.mjs。中身は qa-report/a11y.md）", a.status === 0, (a.stdout.match(/^- ❌.*$/gm) || []).join(" / ") || (a.status ? a.stderr.slice(-300) : ""));
+}
 
 const fail = results.filter((r) => !r.ok);
 const md = `# 条文討伐 QA\n\n${results.length - fail.length}/${results.length} 通過\n\n${results.map((r) => `- ${r.ok ? "✅" : "❌"} ${r.name}${r.ok || !r.detail ? "" : `（${r.detail}）`}`).join("\n")}\n`;

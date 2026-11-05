@@ -1,0 +1,11 @@
+{
+  "screens": [
+    { "name": "今日の5体（戦い）", "click": ["#go-d"] },
+    { "name": "当てたあと（命中の解説）", "click": ["#go-d", ".card:nth-child(1)"] },
+    { "name": "練習", "click": ["#go-p"] },
+    { "name": "魔物図鑑", "click": ["#go-dex"] },
+    { "name": "条文帳", "click": ["#go-book"] },
+    { "name": "実績", "click": ["#go-ach"] },
+    { "name": "カレンダー", "click": ["#go-cal"] }
+  ]
+}
