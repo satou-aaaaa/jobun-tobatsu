@@ -411,7 +411,7 @@ const battle = (r) => r.plan[r.res.length];
 const askOf = (b, p) => (b.m >= 0 ? MON[b.m] : MON[b.order[Math.min(p, b.order.length - 1)][0]]).ask; // 魔物ごとの問いかけ（何を答えるか）
 const monOf = (b, p) => (b.m === -1 ? D.BOSS : b.m === -2 ? MON[b.order[Math.min(p, b.order.length - 1)][0]] : MON[b.m]);
 const nCards = (r) => (r.mode === "h" ? 4 : 3);
-const cardsNow = (r) => { const b = battle(r), q = G.qOf(b, r.cur.p); return { b, q, cards: G.cardsOf(q, (b.seed + r.cur.p * 7919) >>> 0, nCards(r)) }; };
+const choicesNow = (r) => { const b = battle(r), q = G.qOf(b, r.cur.p); return { b, q, opts: G.choicesOf(q, (b.seed + r.cur.p * 7919) >>> 0, nCards(r)) }; };
 const starsOf = (c) => { const e = c.miss + (c.hint ? 1 : 0); return e === 0 ? 3 : e === 1 ? 2 : 1; };
 function title(r) { const n = r.plan.length; return r.mode === "d" ? `今日の3体 ${r.res.length + 1}/${n}` : r.mode === "h" ? "上級：無法大君" : r.mode === "a" ? `${md(r.date)} の3体 ${r.res.length + 1}/${n}` : r.plan[0].m === -2 ? "おさらい" : "練習"; }
 function play(fx) {
@@ -419,7 +419,7 @@ function play(fx) {
   if (!r) return home();
   if (r.view) return beaten(r); // 最後の1体も、討伐の画面を見てから結果へ
   if (r.res.length >= r.plan.length) return finish();
-  const { b, q, cards } = cardsNow(r), c = r.cur, m = monOf(b, c.p), hpMax = hpOf(b), hp = c.hp === null ? hpMax : c.hp;
+  const { b, q, opts } = choicesNow(r), c = r.cur, m = monOf(b, c.p), hpMax = hpOf(b), hp = c.hp === null ? hpMax : c.hp;
   const a = c.ans, L = LAWS[q.a];
   draw(`${back(title(r), r.mode === "p" ? "記録には入りません（図鑑・条文帳には載ります）" : r.mode === "a" ? "あとから（連続の日には入りません）" : "")}
     ${r.plan.length > 1 ? `<div class="dots">${r.plan.map((_, i) => `<i class="${i < r.res.length ? "done" : i === r.res.length ? "on" : ""}"></i>`).join("")}</div>` : ""}
@@ -428,7 +428,7 @@ function play(fx) {
       <div class="hpbar" aria-label="魔物の体力 ${hp}/${hpMax}">${Array.from({ length: hpMax }, (_, i) => `<i class="${i < hp ? "" : "off"}"></i>`).join("")}</div></div>
     <div class="deed" id="deed">${esc(q.s)}</div>
     ${a ? "" : `<p class="ask">${esc(askOf(b, c.p))}<small>条文を選んで斬る</small></p>`}
-    <div class="cards${a ? " done" : ""}" id="cards">${cards.map((id) => { const x = LAWS[id], gone = c.gone === id; return `<button class="card${a && id === q.a ? " right" : ""}${a && id === a.pick && !a.ok ? " wrong" : ""}${gone ? " gone" : ""}" data-id="${id}" ${a || gone ? "disabled" : ""} aria-label="${x.law}${x.no} ${x.name}"><span class="no">${x.law}<b>${x.no}</b></span><span class="nm">${esc(x.name)}</span></button>`; }).join("")}</div>
+    <div class="cards${a ? " done" : ""}" id="cards">${opts.map((id) => { const x = LAWS[id], gone = c.gone === id; return `<button class="card${a && id === q.a ? " right" : ""}${a && id === a.pick && !a.ok ? " wrong" : ""}${gone ? " gone" : ""}" data-id="${id}" ${a || gone ? "disabled" : ""} aria-label="${x.law}${x.no} ${x.name}"><span class="no">${x.law}<b>${x.no}</b></span><span class="nm">${esc(x.name)}</span></button>`; }).join("")}</div>
     ${a ? `<div class="law${a.ok ? "" : " ng"}" id="law"><div class="hd"><b>${a.ok ? "命中" : "反撃"}</b>${L.law}${L.no}（${esc(L.cap || L.name)}）</div><q>${esc(L.text)}</q><p>${esc(q.w)}</p>${a.ok ? "" : `<p class="pick">選んだ${LAWS[a.pick].law}${LAWS[a.pick].no}（${esc(LAWS[a.pick].name)}）は「${esc(LAWS[a.pick].text.split("…")[0])}」の決まり。</p>`}<button class="main" id="next">${a.ok && hp <= 0 ? "とどめ！" : c.me <= 0 ? "逃げられた…" : "次へ"}</button></div>` : ""}
     <div class="foot"><div class="shield" aria-label="盾 ${c.me}/${ME}"><small>盾</small>${Array.from({ length: ME }, (_, i) => `<span class="${i < c.me ? "" : "off"}">🛡️</span>`).join("")}</div>
       ${r.mode === "h" ? `<small class="note">ヒントなし</small>` : `<button class="sub" id="hint" ${a || c.hint ? "disabled" : ""}>👁 見抜く${c.hint ? "（使った）" : "（★-1）"}</button>`}</div>`);
@@ -459,8 +459,8 @@ function answer(id, runId, p) {
   save((s) => {
     const r = s.runs[RK];
     if (!r || r.id !== runId || r.view || r.res.length >= r.plan.length || r.cur.p !== p || r.cur.ans) return;
-    const { b, q, cards } = cardsNow(r), c = r.cur;
-    if (!cards.includes(id) || id === c.gone) return;
+    const { b, q, opts } = choicesNow(r), c = r.cur;
+    if (!opts.includes(id) || id === c.gone) return;
     if (c.hp === null) c.hp = hpOf(b);
     ok = id === q.a;
     c.ans = { pick: id, ok };
@@ -473,7 +473,7 @@ function answer(id, runId, p) {
   play(ok ? "hit" : "miss");
 }
 function useHint(runId, p) {
-  save((s) => { const r = s.runs[RK]; if (!r || r.id !== runId || r.mode === "h" || r.cur.p !== p || r.cur.ans || r.cur.hint) return; const { q, cards, b } = cardsNow(r); r.cur.hint = true; r.cur.gone = G.hintOf(cards, q, (b.seed + p) >>> 0); });
+  save((s) => { const r = s.runs[RK]; if (!r || r.id !== runId || r.mode === "h" || r.cur.p !== p || r.cur.ans || r.cur.hint) return; const { q, opts, b } = choicesNow(r); r.cur.hint = true; r.cur.gone = G.hintOf(opts, q, (b.seed + p) >>> 0); });
   play();
 }
 // 次へ：体力が尽きたら討伐、盾が尽きたら逃げられる。どちらでもなければ次の悪事

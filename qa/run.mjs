@@ -58,7 +58,7 @@ const L = D.LAWS, M = D.MONSTERS, len = (t) => [...t].length;
     if (h[0].order.length < D.BOSS.hp + 2 || new Set(hm).size !== hm.length || hm.some((m) => ms.includes(m))) bad.push(`${d} 大魔の問題が足りない・重なる・今日の3体と重なる`);
     if (h[0].order.some(([m, q]) => !M[m].qs[q] || M[m].qs[q].x.length < 3)) bad.push(`${d} 大魔にまちがい3枚未満の問題`);
     for (const b of [...p, ...h]) for (let k = 0; k < b.order.length; k++) {
-      const q = G.qOf(b, k), cs = G.cardsOf(q, (b.seed + k * 7919) >>> 0, b.m === -1 ? 4 : 3);
+      const q = G.qOf(b, k), cs = G.choicesOf(q, (b.seed + k * 7919) >>> 0, b.m === -1 ? 4 : 3);
       if (cs.length !== (b.m === -1 ? 4 : 3) || new Set(cs).size !== cs.length || !cs.includes(q.a) || cs.some((c) => c !== q.a && !q.x.includes(c))) bad.push(`${d} カードがおかしい`);
       const g = G.hintOf(cs, q, b.seed + k); if (g === q.a || !cs.includes(g)) bad.push(`${d} 見抜くで正しいカードが消える`);
       seenQ.add(b.m < 0 ? b.order[k].join(":") : b.m + ":" + b.order[k]);

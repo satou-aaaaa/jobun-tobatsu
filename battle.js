@@ -26,9 +26,9 @@
   // 問題を取り出す。boss の order は [魔物, 問題] の組
   const qOf = (b, p) => (b.m < 0 ? D.MONSTERS[b.order[p][0]].qs[b.order[p][1]] : D.MONSTERS[b.m].qs[b.order[p]]);
   // カード：正しい条文と、まちがい（x）から n-1 枚。並びも種で決める
-  function cardsOf(q, seed, n) { const R = rng(seed); const wrong = shuffle(q.x, R).slice(0, n - 1); return shuffle([q.a, ...wrong], R); }
+  function choicesOf(q, seed, n) { const R = rng(seed); const wrong = shuffle(q.x, R).slice(0, n - 1); return shuffle([q.a, ...wrong], R); }
   // 見抜く（ヒント）で消すまちがいのカード：種で1枚
-  function hintOf(cards, q, seed) { const w = cards.filter((c) => c !== q.a); return w[Math.floor(rng(seed ^ 0x9e3779b9)() * w.length)]; }
-  const out = { seedOf, rng, shuffle, dailyMons, dailyPlan, hardPlan, practicePlan, qOf, cardsOf, hintOf, prevDay };
+  function hintOf(opts, q, seed) { const w = opts.filter((c) => c !== q.a); return w[Math.floor(rng(seed ^ 0x9e3779b9)() * w.length)]; }
+  const out = { seedOf, rng, shuffle, dailyMons, dailyPlan, hardPlan, practicePlan, qOf, choicesOf, hintOf, prevDay };
   if (typeof module !== "undefined" && module.exports) module.exports = out; else root.BATTLE = out;
 })(this);
