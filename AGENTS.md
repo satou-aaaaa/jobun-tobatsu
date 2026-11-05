@@ -40,6 +40,7 @@ python3 tools/check-laws.py    # data.js の条文を足した・直したとき
 - PWA（`manifest.webmanifest`・`sw.js`・`icon-*.png`）：画面のファイルを足したら `sw.js` の `SHELL` にも足し、中身を大きく変えたら `CACHE` の版を上げる。アイコンと SNS 用の絵 `og.png` は `node tools/make-art.cjs`（今日の魔物を入れない）。
 - 引き継ぎコード（`transfer.js`）は shared-workflows の `template/transfer.js` の写し（直すのはひな形だけ）。`data-keys` は `tobatsu-v1`・`tobatsu-v1-snd`（a11y-v1 は入れない）。QA は `qa/transfer-check.mjs` の `checkTransfer` で見る。
 - 公開リポジトリなので、個人情報・鍵を入れない。
+- 見やすさ：`</head>` の前の見やすさの設定（`<!-- a11y:begin -->`〜`end`）は shared-workflows `template/a11y/a11y.html` の写しで、ここでは直さない。`qa/a11y.mjs` も `template/qa/a11y.mjs` の写し（画面の足し方・許しは `qa/a11y.json` に理由つき）。色だけで分けない（札は ✓ 正しい・✕ 選んだ＋破線・見抜いた札は取り消し線、命中/反撃の見出しに ✓/✕、体力の減った分は枠だけ、減った盾に ✕、進み具合の点は今の体が大きく・まだは枠、取れない星は ☆、カレンダーの上級は▲。「色の見分けを助ける」では正しい＝青 `#0072B2`・まちがい＝朱 `#D55E00`）・コントラスト 4.5:1・知らせは `#live`（role=status。命中・反撃・見抜く・討伐を文字で）・「動きを減らす」（`calm()`）で振動とすべるスクロールを止める・決めつけの言葉を使わない（家族の事件は夫・妻のどちらかに寄せない。条文の原文はそのまま。shared-workflows `routines/game-dev.md`「だれでも遊べるように」）。
 
 ## 公開
 
