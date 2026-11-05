@@ -165,10 +165,10 @@ for (const [label, settings] of [["ふつう", null], ["設定を全部入れた
         // 押して進んだあとも設定の印が html に残っているか（ゲームが className を書き換えると消える）
         const lost = await page.evaluate((keys) => keys.filter((k) => !document.documentElement.classList.contains("a11y-" + k)), Object.keys(settings).filter((k) => k !== "ruby"));
         check(`操作のあとも設定の印（html の a11y- の class）が残る：${sc.name}`, lost.length === 0, lost.length ? `消えた: ${lost.join(",")}` : "");
-        // 「🔊 読む」で読む文があるか（無いと押しても設定の画面が開くだけ）
-        const says = await page.evaluate(() => [...document.querySelectorAll("[data-a11y-say]")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden" && !el.closest("[hidden],[aria-hidden=true],[inert]") && (el.getAttribute("aria-label") || el.innerText || "").trim(); }).length);
+        // 「🔊 読む」で読む文があるか（data-a11y-say、無ければ見出し・知らせの場所。どちらも無いと押しても設定の画面が開くだけ）
+        const says = await page.evaluate(() => { const vis = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden" && !el.closest("[hidden],[aria-hidden=true],[inert]") && (el.getAttribute("aria-label") || el.innerText || "").trim(); }; return { say: [...document.querySelectorAll("[data-a11y-say]")].filter(vis).length, head: [...document.querySelectorAll("h1,h2,[role=status],[aria-live]")].filter(vis).length }; });
         const noSay = (cfg.noSay || []).find((n) => n.screen === sc.name);
-        check(`読み上げる文（見えていて中身のある data-a11y-say）がある：${sc.name}`, says > 0 || noSay, noSay ? `許し：${noSay.reason}` : `${says}か所`);
+        check(`「🔊 読む」で読む文がある（data-a11y-say か見出し）：${sc.name}`, says.say > 0 || says.head > 0 || noSay, noSay ? `許し：${noSay.reason}` : says.say ? `${says.say}か所` : `data-a11y-say は無く、見出し・知らせ ${says.head}か所を読む（問題・お題のある画面なら data-a11y-say を付ける）`);
       }
     } catch (e) { check(`画面を開ける：${sc.name}・${label}`, false, e.message); }
     await ctx.close();
