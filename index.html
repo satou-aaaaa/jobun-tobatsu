@@ -549,8 +549,9 @@ function answer(id, runId, p) {
   if (ok === null) return play();
   play(ok ? "hit" : "miss");
 }
+// 見抜く：討伐の画面中・終えた回では使わない（古いタブで次の魔物の見抜くを消さない。2026-11-05 CodeRabbit）
 function useHint(runId, p) {
-  save((s) => { const r = s.runs[RK]; if (!r || r.id !== runId || r.mode === "h" || r.cur.p !== p || r.cur.ans || r.cur.hint) return; const { q, opts, b } = choicesNow(r); r.cur.hint = true; r.cur.gone = G.hintOf(opts, q, (b.seed + p) >>> 0); });
+  save((s) => { const r = s.runs[RK]; if (!r || r.id !== runId || r.view || isDone(r) || r.mode === "h" || r.cur.p !== p || r.cur.ans || r.cur.hint) return; const { q, opts, b } = choicesNow(r); r.cur.hint = true; r.cur.gone = G.hintOf(opts, q, (b.seed + p) >>> 0); });
   sfx("hint");
   play();
 }

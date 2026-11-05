@@ -326,6 +326,11 @@ for (const [day, art] of [["2026-11-12", "guard"], ["2026-11-19", "text"]]) {
   const xp1 = (await st(a)).xp;
   const q = qByDeed(await deed(b)); await b.click(`.card[data-id="${q.a}"]`); await b.waitForTimeout(100);
   check("古いタブで同じ問題に答えても二重に数えない", (await st(a)).xp === xp1);
+  await nextBtn(a);
+  await b.reload(); await b.click("#go-d"); // b は今の問題を出したまま
+  for (let i = 0; i < 6 && !(await a.$(".win")); i++) { await answer(a, true); await nextBtn(a); }
+  await b.click("#hint"); await b.waitForTimeout(100);
+  check("討伐の画面のあいだに古いタブで見抜くを押しても、次の魔物の見抜くは消えない（2026-11-05 CodeRabbit）", !!(await a.$(".win")) && !(await st(a)).runs.d.cur.hint);
   await ctx.close();
 }
 
