@@ -38,7 +38,7 @@ python3 tools/check-laws.py    # data.js の条文を足した・直したとき
 - 外へ通信しない。外から読むのは Google Fonts の文字だけ（CSP の `connect-src 'self'` を広げない）。記録は遊ぶ人のブラウザ（localStorage）だけ。
 - 押せる所は高さ44px以上（QA が見る）。機能を足す・直すたびに `qa/run.mjs` に検査を足す。乱数で組む部分は何年分も作って確かめる（shared-workflows `incidents/2026-10-31-roppo-empty-village.md`）。
 - PWA（`manifest.webmanifest`・`sw.js`・`icon-*.png`）：画面のファイルを足したら `sw.js` の `SHELL` にも足し、中身を大きく変えたら `CACHE` の版を上げる。アイコンと SNS 用の絵 `og.png` は `node tools/make-art.cjs`（今日の魔物を入れない）。
-- 引き継ぎコード（`transfer.js`）は shared-workflows の `template/transfer.js` の写し（直すのはひな形だけ）。`data-keys` は `tobatsu-v1`・`tobatsu-v1-snd`・`a11y-v1`。QA は `qa/transfer-check.mjs` の `checkTransfer` で見る。
+- 引き継ぎコード（`transfer.js`）は shared-workflows の `template/transfer.js` の写し（直すのはひな形だけ）。`data-keys` は `tobatsu-v1`・`tobatsu-v1-snd`（a11y-v1 は入れない）。QA は `qa/transfer-check.mjs` の `checkTransfer` で見る。
 - 公開リポジトリなので、個人情報・鍵を入れない。
 
 ## 公開
