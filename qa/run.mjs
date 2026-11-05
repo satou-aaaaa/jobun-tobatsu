@@ -6,6 +6,7 @@ import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
+import { checkTransfer } from "./transfer-check.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const url = pathToFileURL(path.join(root, "index.html")).href;
@@ -384,6 +385,8 @@ for (const [day, art] of [["2026-11-12", "guard"], ["2026-11-19", "text"]]) {
   await ctx.close();
 }
 
+// 引き継ぎコード（別の端末へ記録を移す。shared-workflows template/transfer.js）
+await checkTransfer({ browser, url, game: "jobun-tobatsu", sample: { "tobatsu-v1": JSON.stringify({ v: 1, tut: true, days: { "2026-11-04": { st: [3, 2, 1, 3, 3] } }, dex: { kasume: { w: 2, b: 3 } }, laws: { k235: 2 }, xp: 2, seen: { kasume: 1 } }) }, check, open: async (p) => { await p.evaluate(() => { const d = document.getElementById("howto"); if (d && d.open) document.getElementById("howto-ok").click(); }); } });
 check("ページのエラーが出ない", errors.length === 0, errors.slice(0, 3).join(" / "));
 await browser.close();
 
