@@ -22,7 +22,7 @@ const out = (f) => path.join(__dirname, "..", f);
   const sv = (i, w) => mon[i].replace("<svg ", `<svg style="width:${w}px;height:${w}px;overflow:visible" `);
   await p.setContent(`<body style="margin:0;font-family:'Noto Serif CJK JP','Noto Sans CJK JP',serif">
   <div style="width:1200px;height:630px;box-sizing:border-box;padding:70px 80px;background:${bg};color:#f3eee2;position:relative;overflow:hidden">
-    <div style="font-size:32px;color:#e6b84c;letter-spacing:.12em">本物の条文で戦う・1日3体</div>
+    <div style="font-size:32px;color:#e6b84c;letter-spacing:.12em">本物の条文で戦う・1日5体</div>
     <div style="font-size:120px;font-weight:900;margin-top:10px;letter-spacing:.12em;color:#f6d77e;text-shadow:0 0 30px #e6b84c66">条文討伐</div>
     <div style="font-size:40px;margin-top:14px;line-height:1.5;color:#e9e2f5">その悪事、<br>どの条文で斬る？</div>
     <div style="position:absolute;right:70px;top:110px">${sv(0, 400)}</div>

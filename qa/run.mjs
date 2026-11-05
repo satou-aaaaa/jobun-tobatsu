@@ -44,18 +44,18 @@ const L = D.LAWS, M = D.MONSTERS, len = (t) => [...t].length;
   check("どの魔物にも、上級で使えるまちがい3枚以上の問題がある", M.every((m) => m.qs.some((q) => q.x.length >= 3)));
 }
 
-// 2. 今日の3体・大魔の組み方（3年分）
+// 2. 今日の5体・大魔の組み方（3年分）
 {
   const bad = [], seen = new Set(), seenQ = new Set();
   let d = "2026-11-05", prev = null;
   for (let i = 0; i < 365 * 3; i++) {
     const p = G.dailyPlan(d), h = G.hardPlan(d), ms = p.map((b) => b.m);
-    if (new Set(ms).size !== 3) bad.push(`${d} 3体が重なる`);
-    if (prev && [...ms].sort().join() === [...prev].sort().join()) bad.push(`${d} 前の日と同じ3体`);
+    if (ms.length !== 5 || new Set(ms).size !== 5) bad.push(`${d} 5体が重なる`);
+    if (prev && [...ms].sort().join() === [...prev].sort().join()) bad.push(`${d} 前の日と同じ5体`);
     if (JSON.stringify(p) !== JSON.stringify(G.dailyPlan(d)) || JSON.stringify(h) !== JSON.stringify(G.hardPlan(d))) bad.push(`${d} 同じ日で組み方が変わる`);
     p.forEach((b) => { if (b.order.length !== M[b.m].qs.length || new Set(b.order).size !== b.order.length) bad.push(`${d} 問題の順番がおかしい`); seen.add(b.m); });
     const hm = h[0].order.map((x) => x[0]);
-    if (h[0].order.length < D.BOSS.hp + 2 || new Set(hm).size !== hm.length || hm.some((m) => ms.includes(m))) bad.push(`${d} 大魔の問題が足りない・重なる・今日の3体と重なる`);
+    if (h[0].order.length < D.BOSS.hp + 2 || new Set(hm).size !== hm.length || hm.some((m) => ms.includes(m))) bad.push(`${d} 大魔の問題が足りない・重なる・今日の5体と重なる`);
     if (h[0].order.some(([m, q]) => !M[m].qs[q] || M[m].qs[q].x.length < 3)) bad.push(`${d} 大魔にまちがい3枚未満の問題`);
     for (const b of [...p, ...h]) for (let k = 0; k < b.order.length; k++) {
       const q = G.qOf(b, k), cs = G.choicesOf(q, (b.seed + k * 7919) >>> 0, b.m === -1 ? 4 : 3);
@@ -65,15 +65,24 @@ const L = D.LAWS, M = D.MONSTERS, len = (t) => [...t].length;
     }
     prev = ms; d = new Date(Date.parse(d) + 864e5).toISOString().slice(0, 10);
   }
-  check("今日の3体：毎日ちがう3体・前の日と同じ組にならない・同じ日はいつも同じ（3年分）", bad.filter((x) => /3体|同じ/.test(x)).length === 0, bad.slice(0, 3).join(","));
-  check("大魔：今日の3体と重ならない別々の魔物から7問・まちがい3枚以上（3年分）", bad.filter((x) => /大魔/.test(x)).length === 0, bad.filter((x) => /大魔/.test(x)).slice(0, 3).join(","));
+  check("今日の5体（2026-11-05 satouさん「一日で遊べる量が少なすぎる」で3体から増やした）：毎日ちがう5体・前の日と同じ組にならない・同じ日はいつも同じ（3年分）", bad.filter((x) => /5体|同じ/.test(x)).length === 0, bad.slice(0, 3).join(","));
+  check("大魔：今日の5体と重ならない別々の魔物から7問・まちがい3枚以上（3年分）", bad.filter((x) => /大魔/.test(x)).length === 0, bad.filter((x) => /大魔/.test(x)).slice(0, 3).join(","));
   check("カード：正しい条文を入れてちがう3枚（上級4枚）・見抜くは正しいカードを消さない", bad.filter((x) => /カード|見抜く|順番/.test(x)).length === 0, bad.filter((x) => /カード|見抜く|順番/.test(x)).slice(0, 3).join(","));
   const total = M.reduce((t, m) => t + m.qs.length, 0);
   check("3年のうちに全部の魔物・全部の問題が出る", seen.size === M.length && seenQ.size === total, `${seen.size}/${M.length} ${seenQ.size}/${total}`);
-  // 片寄り：1年でどの魔物も今日の3体に出る回数が平均の半分〜2倍
+  // 片寄り：1年でどの魔物も今日の5体に出る回数が平均の半分〜2倍
   const cnt = new Array(M.length).fill(0); let k = "2026-11-05"; for (let i = 0; i < 365; i++) { G.dailyMons(k).forEach((m) => cnt[m]++); k = new Date(Date.parse(k) + 864e5).toISOString().slice(0, 10); }
-  const avg = (365 * 3) / M.length;
+  const avg = (365 * 5) / M.length;
   check("1年で、どの魔物も出る回数が平均の半分〜2倍（片寄らない）", cnt.every((c) => c > avg / 2 && c < avg * 2), cnt.join(","));
+  // 今週の大魔の技：月曜〜日曜は同じ、3つが順に替わる（3年分）
+  const wk = []; let w = "2026-11-02", okW = true; for (let i = 0; i < 156; i++) { const a = G.weekArt(w); for (let j = 1; j < 7; j++) if (G.weekArt(new Date(Date.parse(w) + j * 864e5).toISOString().slice(0, 10)) !== a) okW = false; wk.push(a); w = new Date(Date.parse(w) + 7 * 864e5).toISOString().slice(0, 10); }
+  check("今週の大魔の技：月曜〜日曜は同じ・3つ（再生・盾くだき・名隠し）が週ごとに替わり、続けて同じにならない", okW && new Set(wk).size === 3 && wk.every((a, i) => !i || a !== wk[i - 1]) && G.hardPlan("2026-11-05")[0].art === G.weekArt("2026-11-05"), wk.slice(0, 4).join(","));
+  // 連戦の並び：出会った魔物だけ・続けて同じ魔物にならない・60体（何百回も作って確かめる）
+  let eb = 0; for (let i = 0; i < 500; i++) { const pool = G.shuffle([...M.keys()], G.rng(i)).slice(0, 5 + (i % 8)), pl = G.endlessPlan(i * 7 + 1, pool); if (pl.length !== 60 || pl.some((b, j) => !pool.includes(b.m) || (j && b.m === pl[j - 1].m) || b.order.length !== M[b.m].qs.length)) eb++; }
+  check("連戦の並び：出会った魔物だけ・続けて同じ魔物が出ない・60体（500回）", eb === 0, String(eb));
+  // 真の姿：体力4・カード4枚（まちがいが3枚ある問題では4枚になる）
+  const vp = G.practicePlan(1, 0, 1)[0];
+  check("真の姿の練習は v=1（体力4・カード4枚）", vp.v === 1 && vp.m === 0);
 }
 
 const html = readFileSync(path.join(root, "index.html"), "utf8"), bjs = readFileSync(path.join(root, "battle.js"), "utf8");
@@ -116,6 +125,7 @@ async function newCtx(time = DAY0) {
   return { ctx, open };
 }
 const st = (p) => p.evaluate(() => JSON.parse(localStorage.getItem("tobatsu-v1") || "null"));
+const ARTK = { 刑法: "kei", 民法: "min", 憲法: "ken", 労働基準法: "rou", 特定商取引法: "sho", 消費者契約法: "sho" };
 const qByDeed = (t) => { for (const m of M) for (const q of m.qs) if (q.s === t) return q; return null; };
 async function deed(p) { return (await p.textContent("#deed")).trim(); }
 // 1問答える。ok=true で正しいカード、false でまちがいのカード
@@ -126,13 +136,14 @@ async function beat(p) { for (let i = 0; i < 8; i++) { await answer(p, true); aw
 async function noOverflow(p) { return p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1); }
 async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.height < 43.5 && getComputedStyle(e).visibility !== "hidden"; }).map((e) => e.textContent.trim().slice(0, 12))); }
 
-// A. 初めて開く → 今日の3体を全部★3で → 結果・記録・図鑑・条文帳・Ko-fi・シェア
+// A. 初めて開く → 今日の5体を全部★3で → 結果・記録・図鑑・条文帳・Ko-fi・シェア
 {
   const { ctx, open } = await newCtx();
   const p = await open();
   check("初めて開くと遊び方が出る", await p.isVisible("#howto"));
   await p.click("#howto-ok");
-  check("ホーム：今日の3体の影が出て、名前はまだ伏せる", (await p.$$(".trio.shade svg")).length === 3 && (await p.textContent(".trio")).includes("？？？"));
+  check("ホーム：今日の5体の影が出て、名前はまだ伏せる", (await p.$$(".trio.shade svg")).length === 5 && (await p.textContent(".trio")).includes("？？？"));
+  check("ホーム：まだ魔物に出会っていないので連戦は閉じている", await p.$eval("#go-e", (e) => e.disabled));
   check("ホーム：押せる所は高さ44px以上", (await smallTaps(p)).length === 0, (await smallTaps(p)).join(","));
   await p.click("#go-d");
   check("戦い：魔物・体力3・事件・カード3枚・盾3・見抜く", (await p.$$(".hpbar i")).length === 3 && (await p.$$(".card")).length === 3 && (await p.$$(".shield span")).length === 3 && !!(await p.$("#hint")));
@@ -144,8 +155,9 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
   const r1 = await answer(p, true);
   check("当てると「命中」と、その条文の本文・一言が出る", (await p.textContent("#law")).includes("命中") && (await p.textContent("#law")).includes(L[r1.q.a].text.split("…")[0]) && (await p.textContent("#law")).includes(r1.q.w));
   check("当てると魔物の体力が1減り、ひびが入る（斬るたびにボロボロに。2026-11-05 satouさん）", (await p.$$(".hpbar i.off")).length === 1 && (await p.getAttribute("#mon svg", "data-dmg")) === "0.33" && (await p.$$("#mon .crack")).length === 2);
-  { const want = { 刑法: "kei", 民法: "min", 憲法: "ken", 労働基準法: "rou", 特定商取引法: "sho", 消費者契約法: "sho" }[L[r1.q.a].law];
-    check("攻撃の技は条文の法律で変わる（刑法＝刃・民法＝鎖・憲法＝光・労基＝鐘・消費者＝札）", await p.$eval("#mon", (e, w) => e.classList.contains("fx-" + w), want)); }
+  { const want = ARTK[L[r1.q.a].law];
+    check("攻撃の技は条文の法律で変わる（刑法＝刃・民法＝鎖・憲法＝光・労基＝鐘・消費者＝札）", await p.$eval("#mon", (e, w) => e.classList.contains("fx-" + w), want));
+    check("効果音も技ごとに変わる（端末の中で作る音。外から読まない）", (await p.evaluate(() => SND.log.slice(-1)[0])) === want); }
   await nextBtn(p);
   let won = true; for (let i = 0; i < 2; i++) { await answer(p, true); await nextBtn(p); }
   won = !!(await p.$(".win")) && (await p.textContent(".win .big")).includes("討伐");
@@ -153,38 +165,52 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
   check("3回当てると「討伐！」と★3", won && (await p.$$(".win .stars")).length === 1 && !(await p.textContent(".win .stars .off")));
   await p.click("#go");
   check("討伐のあと2体目へ（点が進む）", (await p.$$(".dots i.done")).length === 1);
-  await beat(p); await p.click("#go");
+  for (let i = 0; i < 3; i++) { await beat(p); await p.click("#go"); }
   await beat(p);
-  check("3体目も討伐の画面を見てから結果へ", !!(await p.$(".win")));
+  check("5体目も討伐の画面を見てから結果へ", !!(await p.$(".win")));
   await p.click("#go");
   const s = await st(p);
-  check("結果：3体とも★3で、日ごとの記録に入る", JSON.stringify(s.days["2026-11-05"]) === JSON.stringify({ st: [3, 3, 3] }));
-  check("結果：図鑑に3体、条文帳と当てた数が増える", Object.values(s.dex).filter((d) => d.w > 0).length === 3 && s.xp === 9 && Object.keys(s.laws).length >= 3);
+  check("結果：5体とも★3で、日ごとの記録に入る", JSON.stringify(s.days["2026-11-05"]) === JSON.stringify({ st: [3, 3, 3, 3, 3] }));
+  check("結果：図鑑に5体、条文帳と当てた数が増える・出会った魔物に5体", Object.values(s.dex).filter((d) => d.w > 0).length === 5 && s.xp === 15 && Object.keys(s.laws).length >= 3 && Object.keys(s.seen).length === 5);
   const shareTxt = await p.textContent(".share");
-  check("シェアの文は四角だけで、条文・魔物の名前（答え）を出さない", shareTxt.includes("🟩🟩🟩") && !Object.values(L).some((x) => shareTxt.includes(x.name) || shareTxt.includes(x.no)) && !M.some((m) => shareTxt.includes(m.name)));
+  check("シェアの文は四角だけで、条文・魔物の名前（答え）を出さない", shareTxt.includes("🟩🟩🟩🟩🟩") && !Object.values(L).some((x) => shareTxt.includes(x.name) || shareTxt.includes(x.no)) && !M.some((m) => shareTxt.includes(m.name)));
   check("初めて全部★3で終えたので、Ko-fi の1行が結果の画面に出る", (await p.$$("text=Ko-fi で応援")).length >= 2);
   check("新しく取れた実績を知らせる", (await p.textContent(".ach-new")).includes("初めての討伐"));
   check("結果の画面：はみ出さない・押せる所は44px以上", (await noOverflow(p)) && (await smallTaps(p)).length === 0, (await smallTaps(p)).join(","));
   await p.click("#home");
-  check("ホーム：今日は結果を見るボタンになり、3体の名前が出て、上級が開く", (await p.textContent("#go-d")).includes("結果") && !(await p.$(".trio.shade")) && !!(await p.$("#go-h")));
+  check("ホーム：連戦が開く（今日の5体に出会った）", !(await p.$eval("#go-e", (e) => e.disabled)));
+  check("ホーム：今日は結果を見るボタンになり、5体の名前が出て、上級が開く", (await p.textContent("#go-d")).includes("結果") && !(await p.$(".trio.shade")) && !!(await p.$("#go-h")));
   await p.click("#go-d");
   check("もう一度押しても結果を見るだけ（1日1回）", !!(await p.$(".minis")) && !(await p.$(".card")));
   await p.click("#home");
   // 上級
   await p.click("#go-h");
   check("上級：無法大君・体力5・カード4枚・見抜くなし", (await p.textContent(".mname")).includes("無法大君") && (await p.$$(".hpbar i")).length === 5 && (await p.$$(".card")).length === 4 && !(await p.$("#hint")));
+  check("上級：今週の技（11/5 の週は「再生」）を出す", (await p.textContent(".wart")).includes("再生"));
+  await answer(p, true); await nextBtn(p); await answer(p, false);
+  check("今週の技「再生」：外すと大君の体力が1戻る", (await p.$$(".hpbar i.off")).length === 0 && (await p.textContent("#mon .pop")).includes("再生"));
+  await nextBtn(p);
   for (let i = 0; i < 5; i++) { await answer(p, true); await nextBtn(p); }
-  check("上級：5回当てると討伐", (await p.textContent(".win .big")).includes("討伐"));
+  check("上級：体力をすべて削ると討伐", (await p.textContent(".win .big")).includes("討伐"));
   await p.click("#go");
   const s2 = await st(p);
-  check("上級の記録は今日の記録と別（hdays）・図鑑に大魔", JSON.stringify(s2.hdays["2026-11-05"]) === JSON.stringify({ st: [3] }) && s2.dex.muhou && s2.dex.muhou.w === 1 && JSON.stringify(s2.days["2026-11-05"]) === JSON.stringify({ st: [3, 3, 3] }));
+  check("上級の記録は今日の記録と別（hdays）・図鑑に大魔", JSON.stringify(s2.hdays["2026-11-05"]) === JSON.stringify({ st: [2] }) && s2.dex.muhou && s2.dex.muhou.w === 1 && JSON.stringify(s2.days["2026-11-05"]) === JSON.stringify({ st: [3, 3, 3, 3, 3] }));
   await p.click("#home");
   await p.click("#go-book");
   check("条文帳：当てた条文は本文を開ける・まだのものは伏せる", (await p.$$(".book details:not(.no)")).length === Object.keys(s2.laws).length && (await p.$$(".book details.no")).length === Object.keys(L).length - Object.keys(s2.laws).length);
-  await p.click("#back"); await p.click("#go-dex");
-  check("図鑑：討伐した4体（大魔を入れて）は名前が出る", (await p.$$(".dex > div:not(.no)")).length === 4);
+  // 思い出す：集めた条文の文から名前を当てる
+  await p.click("#recall");
+  const rq = await p.textContent("#rtext"), rk = Object.keys(L).find((k) => rq.includes(L[k].text));
+  check("思い出す：集めた条文の文を出し、名前は伏せる・札は集めた条文だけ", !!rk && s2.laws[rk] && !rq.includes(L[rk].name) && (await p.$$eval("[data-r]", (es) => es.map((e) => e.dataset.r))).every((k) => s2.laws[k]));
+  await p.click(`[data-r="${rk}"]`);
+  check("思い出す：当てると「正解」", (await p.textContent("#law")).includes("正解"));
+  for (let i = 0; i < 6 && (await p.$("#next")); i++) { await p.click("#next"); const t = await p.$("#rtext"); if (!t) break; const tx = await t.textContent(); const k = Object.keys(L).find((x) => tx.includes(L[x].text)); await p.click(`[data-r="${k}"]`); }
+  const s3 = await st(p);
+  check("思い出す：5問で終わり、当てた数と最後に出した日を残す", (await p.textContent(".win .big")).includes("5/5") && s3.rcok === 5 && Object.keys(s3.rc).length === 5);
+  await p.click("#bk"); await p.click("#back"); await p.click("#go-dex");
+  check("図鑑：討伐した6体（大魔を入れて）は名前が出る・真の姿はまだ伏せる", (await p.$$(".dex > div:not(.no)")).length === 6 && (await p.textContent(".sec")).includes("真の姿 0/"));
   await p.click("#back"); await p.click("#go-ach");
-  check(`実績は13個・いま/目標を出す`, (await p.$$(".ach")).length === 13 && (await p.textContent(".achs")).includes("/"));
+  check(`実績は16個・いま/目標を出す`, (await p.$$(".ach")).length === 16 && (await p.textContent(".achs")).includes("/"));
   await p.setViewportSize({ width: 320, height: 640 });
   check("幅320pxでも実績の画面がはみ出さない", await noOverflow(p));
   await ctx.close();
@@ -195,7 +221,10 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
   const { ctx, open } = await newCtx();
   const p = await open(); await p.click("#howto-ok");
   await p.click("#go-p");
-  check("練習：12体から選べる", (await p.$$("[data-m]")).length === M.length);
+  check("練習：まだ出会っていない魔物は影で、選べない（2026-11-05 satouさん「練習で全員見えてしまう」）", (await p.$$("[data-m]")).length === 0 && (await p.$$(".dex > div.no")).length === M.length);
+  await p.evaluate(() => { const s = JSON.parse(localStorage.getItem("tobatsu-v1")); s.seen = { kasume: 1 }; localStorage.setItem("tobatsu-v1", JSON.stringify(s)); });
+  await p.click("#back"); await p.click("#go-p");
+  check("練習：出会った魔物だけ選べる・ほかの名前は出さない", (await p.$$("[data-m]")).length === 1 && !(await p.textContent(".dex")).includes(M[1].name));
   await p.click('[data-m="0"]');
   const w1 = await answer(p, false);
   check("外すと、選んだ条文が何の決まりかも出す（見分ける手がかり）", (await p.textContent(".law .pick")).includes(L[w1.id].name));
@@ -224,6 +253,59 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
   check("見抜くを使うと★2", (await p.$$(".win .stars .off")).length === 1 && (await p.textContent(".win .stars .off")).length === 1);
   s = await st(p);
   check("当てた問題はおさらいから消える", s.miss.length === 0);
+  // 真の姿：3回討伐すると練習で戦える（体力4・カード4枚・色ちがい）
+  await p.evaluate(() => { const s = JSON.parse(localStorage.getItem("tobatsu-v1")); s.dex.kasume = { w: 3, b: 3 }; localStorage.setItem("tobatsu-v1", JSON.stringify(s)); });
+  await p.click("#go"); await p.click("#home"); await p.click("#go-p");
+  check("練習：3回討伐した魔物は「真の姿」とも戦える", (await p.$$("[data-v]")).length === 1);
+  await p.click('[data-v="0"]');
+  check("真の姿：名前に「真・」・体力4・カード4枚", (await p.textContent(".mname")).includes("真・" + M[0].name) && (await p.$$(".hpbar i")).length === 4 && (await p.$$(".card")).length === 4);
+  for (let i = 0; i < 4; i++) { await answer(p, true); await nextBtn(p); }
+  check("真の姿を討伐すると図鑑の別の欄に載る", ((await st(p)).dex["kasume*"] || {}).w === 1);
+  // 効果音の切り替え（この端末に覚える）
+  await p.click("#go"); await p.click("#home");
+  await p.click("#snd");
+  check("効果音は切り替えられ、切ると🔇を出して覚える", (await p.textContent("#snd")) === "🔇" && (await p.evaluate(() => localStorage.getItem("tobatsu-v1-snd"))) === "0");
+  await p.reload();
+  check("開き直しても効果音は切ったまま", (await p.textContent("#snd")) === "🔇");
+  await ctx.close();
+}
+
+// F. 連戦：盾は持ち越し・3体ごとに1つ戻る・盾が尽きたら終わり・最高を残す
+{
+  const { ctx, open } = await newCtx();
+  const p = await open(); await p.click("#howto-ok");
+  const met = ["kasume", "arakobushi", "zawameki", "itsuwari", "madowashi"], names = met.map((id) => M.find((m) => m.id === id).name);
+  await p.evaluate((ids) => localStorage.setItem("tobatsu-v1", JSON.stringify({ v: 1, tut: true, seen: Object.fromEntries(ids.map((i) => [i, 1])) })), met);
+  await p.reload();
+  await p.click("#go-e");
+  const who = async () => (await p.$eval(".mname", (e) => e.firstChild.textContent)).trim();
+  let okNames = names.includes(await who());
+  await answer(p, false); await nextBtn(p);
+  check("連戦：外した盾は残る", (await p.$$(".shield .off")).length === 1);
+  for (let i = 0; i < 3; i++) { await beat(p); await p.click("#go"); if (i < 2) { okNames = okNames && names.includes(await who()); check(`連戦：盾は次の魔物へ持ち越す（${i + 2}体目）`, (await p.$$(".shield .off")).length === 1); } }
+  check("連戦：出会った魔物だけが出る", okNames && names.includes(await who()));
+  check("連戦：3体討伐すると盾が1つ戻る", (await p.$$(".shield .off")).length === 0);
+  for (let i = 0; i < 3; i++) { await answer(p, false); await nextBtn(p); }
+  check("連戦：盾が尽きると連戦おわり", (await p.textContent(".win")).includes("連戦おわり"));
+  await p.click("#go");
+  const s = await st(p);
+  check("連戦の結果：討伐した数と最高を出し、記録 ebest に残す（日ごとの記録には入れない）", (await p.textContent(".win .big")).includes("3") && s.ebest === 3 && !Object.keys(s.days || {}).length && !!(await p.$("#again")));
+  const links = await p.$$eval(".shares a", (es) => es.map((e) => decodeURIComponent(e.href)).join(""));
+  check("連戦の結果：シェアの文に魔物・条文の名前を出さない", !names.some((n) => links.includes(n)) && links.includes("連戦"));
+  check("連戦の結果：はみ出さない・押せる所は44px以上", (await noOverflow(p)) && (await smallTaps(p)).length === 0, (await smallTaps(p)).join(","));
+  await ctx.close();
+}
+
+// G. 今週の大魔の技：盾くだき（盾2つ）・名隠し（札に名前を出さない）
+for (const [day, art] of [["2026-11-12", "guard"], ["2026-11-19", "text"]]) {
+  const { ctx, open } = await newCtx(day + "T03:00:00Z");
+  const p = await open(); await p.click("#howto-ok");
+  await p.evaluate((d) => { const s = { v: 1, tut: true, days: {} }; s.days[d] = { st: [3, 3, 3, 3, 3] }; localStorage.setItem("tobatsu-v1", JSON.stringify(s)); }, day);
+  await p.reload(); await p.click("#go-h");
+  if (art === "guard") check("今週の技「盾くだき」：盾が2つから", (await p.$$(".shield span")).length === 2 && (await p.textContent(".wart")).includes("盾くだき"));
+  else { const nm = await p.$$eval(".card .nm", (es) => es.map((e) => e.textContent)); const ids = await p.$$eval(".card", (es) => es.map((e) => e.dataset.id));
+    check("今週の技「名隠し」：札に条文の名前が出ず、書き出しだけ（答えたあとは名前を出す）", ids.every((id, i) => !nm[i].includes(L[id].name) || L[id].text.startsWith(L[id].name)) && (await p.$$(".card .nm.tx")).length === 4);
+    await answer(p, true); check("名隠し：答えたあとは名前を出す", (await p.$$(".card .nm.tx")).length === 0); }
   await ctx.close();
 }
 
@@ -256,12 +338,12 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
   check("カレンダー：前の月（始めた月より前）へは戻れない", await p.$eval("#pm", (e) => e.disabled));
   await p.click('[data-k="2026-11-06"]');
   const plan = G.dailyPlan("2026-11-06");
-  check("あとから：その日の今日の3体と同じ問題", (await deed(p)) === M[plan[0].m].qs[plan[0].order[0]].s && (await p.textContent("h1")).includes("11/6"));
+  check("あとから：その日の今日の5体と同じ問題", (await deed(p)) === M[plan[0].m].qs[plan[0].order[0]].s && (await p.textContent("h1")).includes("11/6"));
   // 1体目は外して逃げられる
   for (let i = 0; i < 3; i++) { await answer(p, false); await nextBtn(p); }
-  await p.click("#go"); await beat(p); await p.click("#go"); await beat(p); await p.click("#go");
+  await p.click("#go"); for (let i = 0; i < 4; i++) { await beat(p); await p.click("#go"); }
   const s = await st(p);
-  check("あとからの記録は pdays に入り、逃げられた体は0", JSON.stringify(s.pdays["2026-11-06"]) === JSON.stringify({ st: [0, 3, 3] }) && !s.days["2026-11-06"]);
+  check("あとからの記録は pdays に入り、逃げられた体は0", JSON.stringify(s.pdays["2026-11-06"]) === JSON.stringify({ st: [0, 3, 3, 3, 3] }) && !s.days["2026-11-06"]);
   check("あとからは Ko-fi の1行もシェアも出さない", !(await p.$(".shares")) && (await p.$$("text=Ko-fi で応援")).length === 1);
   await p.click("#home");
   check("あとから遊んだ日は連続の日に入らない（遊んだ日には入る）", (await p.textContent(".stats")).includes("1") && (await st(p)).days && Object.keys((await st(p)).days).length === 0);
@@ -274,8 +356,8 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
   check("幅320pxでも戦いの画面がはみ出さない", await noOverflow(p));
   for (let i = 0; i < 3; i++) { await answer(p, false); await nextBtn(p); }
   check("幅320pxでも解説の画面がはみ出さない", await noOverflow(p));
-  await p.click("#go"); await beat(p); await p.click("#go"); await beat(p); await p.click("#go");
-  check("逃げられた体は ⬛ でシェアする", (await p.textContent(".share")).includes("⬛🟩🟩"));
+  await p.click("#go"); for (let i = 0; i < 4; i++) { await beat(p); await p.click("#go"); }
+  check("逃げられた体は ⬛ でシェアする", (await p.textContent(".share")).includes("⬛🟩🟩🟩🟩"));
   check("全部★3でないときは Ko-fi の1行を出さない", (await p.$$("text=Ko-fi で応援")).length === 1);
   await ctx.close();
 }

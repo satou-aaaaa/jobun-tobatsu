@@ -6,12 +6,12 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; worker-src 'self'; manifest-src 'self'">
 <title>条文討伐</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="悪事をはたらく魔物を、正しい条文で斬る。本物の法律で戦う1日3体のバトル。時間制限なし、3分で遊べます。">
+<meta name="description" content="悪事をはたらく魔物を、正しい条文で斬る。本物の法律で戦う1日5体のバトル。時間制限なし。">
 <meta name="theme-color" content="#14122b">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="条文討伐">
 <meta property="og:title" content="条文討伐：その悪事、どの条文で斬る？">
-<meta property="og:description" content="魔物の悪事に当てはまる条文を選んで斬る。だれでも同じ1日3体、本物の法律で戦うバトル。">
+<meta property="og:description" content="魔物の悪事に当てはまる条文を選んで斬る。だれでも同じ1日5体、本物の法律で戦うバトル。">
 <meta property="og:url" content="https://satou-aaaaa.github.io/jobun-tobatsu/">
 <meta property="og:image" content="https://satou-aaaaa.github.io/jobun-tobatsu/og.png">
 <meta property="og:image:width" content="1200">
@@ -148,7 +148,7 @@ button.sub:disabled{opacity:.4;cursor:default}
 /* ホーム */
 .title{font-family:var(--f-head);font-weight:800;font-size:44px;letter-spacing:.14em;text-align:center;margin:6px 0 0;background:linear-gradient(180deg,#fff6d6,#e6b84c 70%,#a8741e);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 10px #e6b84c55)}
 .lead{text-align:center;color:var(--ink2);margin:0;font-size:14px;line-height:1.7}
-.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;align-items:end}
+.trio{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;align-items:end}
 .trio div{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--ink2);min-width:0}
 .trio svg{width:100%;max-width:120px;height:auto;overflow:visible}
 .shade svg .body{filter:brightness(0)}.shade svg .eye{fill:#e2574c}
@@ -175,6 +175,14 @@ button.sub:disabled{opacity:.4;cursor:default}
 .dex em{font-style:normal;font-size:12px;color:var(--gold);text-align:right;white-space:nowrap}
 .dex .no svg .body{filter:brightness(0) opacity(.6)}.dex .no svg .eye{fill:#ffffff33}
 .dex .sub{min-height:44px;font-size:13px;padding:0 10px}
+.dex .btns{display:flex;flex-direction:column;gap:6px}
+.sub.vv{border-color:#ff6f9a88;color:#ffc0d2}
+.mname.vv{color:#ffb0c8}
+.sec{font-family:var(--f-head);font-size:16px;margin:8px 0 0;color:var(--ink2);letter-spacing:.08em}
+.wart{margin:0;font-size:12px;color:#ffb0c8;text-align:center}
+.card .nm.tx{font-family:var(--f-body);font-size:14px;line-height:1.45;letter-spacing:0}
+.deed.recall{font-size:15px;text-align:left}
+.icon.snd.top{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:12px;z-index:2}
 .book h3{font-family:var(--f-head);font-size:15px;margin:10px 0 6px;color:var(--gold);letter-spacing:.06em}
 .book details{background:#ffffff0d;border:1px solid var(--line);border-radius:12px;margin-bottom:6px}
 .book summary{cursor:pointer;min-height:44px;display:flex;align-items:center;gap:10px;padding:0 12px;font-size:14px;list-style:none}
@@ -231,7 +239,7 @@ footer a{color:var(--ink2);min-height:44px;display:inline-flex;align-items:cente
     <li>その悪事に当てはまる条文のカードを選んで斬ります。</li>
     <li>当たれば魔物の体力が1つ減り、外れると反撃で盾が1つ減ります。3回斬れば討伐、盾が尽きると逃げられます。</li>
   </ol>
-  <p>「見抜く」で、ちがうカードを1枚消せます（1体に1回・★が1つ減ります）。今日の3体はだれでも同じで1日1回。時間制限はありません。</p>
+  <p>「見抜く」で、ちがうカードを1枚消せます（1体に1回・★が1つ減ります）。今日の5体はだれでも同じで1日1回。もっと戦いたいときは「連戦」（盾が尽きるまで何体でも）と「練習」（出会った魔物と）。時間制限はありません。</p>
   <p>条文は e-Gov 法令検索の本文から写しています。遊びのための例で、法律相談ではありません。</p>
   <p><a id="fb2" target="_blank" rel="noopener">感想を送る</a></p>
   <button class="main" id="howto-ok" style="width:100%">わかった</button>
@@ -247,7 +255,7 @@ const KEY = "tobatsu-v1", EPOCH = "2026-11-05";
 const D = window.TOBATSU, G = window.BATTLE, MON = D.MONSTERS, LAWS = D.LAWS, LAWIDS = Object.keys(LAWS);
 const ME = 3; // 盾の数（1体ごと）
 
-// ---- 日付（日本時間。だれでも同じ3体）----
+// ---- 日付（日本時間。だれでも同じ5体）----
 const jstNow = () => new Date(Date.now() + 9 * 3600e3);
 const todayKey = () => jstNow().toISOString().slice(0, 10);
 const dayNo = (k) => Math.round((Date.parse(k) - Date.parse(EPOCH)) / 864e5) + 1;
@@ -257,16 +265,21 @@ const DAYRE = /^\d{4}-\d\d-\d\d$/;
 // ---- 記録（この端末の localStorage だけ）----
 // days・hdays・pdays：日ごとの結果 { st:[★…] }（0 は逃げられた）。pdays は取りこぼした日をあとから（連続・今日の記録・Ko-fi には数えない）
 // dex：魔物 → { w:討伐数, b:いちばん多い★ }。laws：条文 → 当てた回数。miss：外した問題 "魔物:問題"（おさらい用・新しい順に12まで）
-// runs：遊んでいる途中の回をモードごとに（d・h・p・a:日付）。ach：結果で知らせ終えた実績。kofi：Ko-fi の1行を出した回
-const fresh = () => ({ v: 1, days: {}, hdays: {}, pdays: {}, dex: {}, laws: {}, xp: 0, miss: [], runs: {}, tut: false, kofi: {}, ach: {}, t: 0 });
+// runs：遊んでいる途中の回をモードごとに（d・h・p・e・a:日付）。ach：結果で知らせ終えた実績。kofi：Ko-fi の1行を出した回
+// seen：出会った魔物（練習・連戦で選べるのはここだけ。図鑑の楽しみを先に見せない）。ebest・en：連戦の最高と回数。rc・rcn・rcok：条文帳の「思い出す」（最後に出した日・回数・当てた数）
+const fresh = () => ({ v: 1, days: {}, hdays: {}, pdays: {}, dex: {}, laws: {}, xp: 0, miss: [], runs: {}, tut: false, kofi: {}, ach: {}, seen: {}, rc: {}, ebest: 0, en: 0, rcn: 0, rcok: 0, t: 0 });
 let mem = null; // 保存できない環境では、開いているあいだだけここに置く
 function parse(j) { try { const o = JSON.parse(j); return o && o.v === 1 ? o : null; } catch (e) { return null; } }
 // 読むときは足りない入れ物を fresh() で補う（古い記録・知らない入れ物を消さない）。保存に失敗したあとはメモリの方が新しい
-function load() { let b = null; try { b = parse(localStorage.getItem(KEY)); } catch (e) {} const a = mem !== null ? parse(mem) : null; const s = Object.assign(fresh(), (a && (!b || (a.t || 0) >= (b.t || 0)) ? a : b) || {}); for (const k of ["days", "hdays", "pdays", "dex", "laws", "runs", "kofi", "ach"]) if (!s[k] || typeof s[k] !== "object") s[k] = {}; if (!Array.isArray(s.miss)) s.miss = []; return s; }
+function load() { let b = null; try { b = parse(localStorage.getItem(KEY)); } catch (e) {} const a = mem !== null ? parse(mem) : null; const s = Object.assign(fresh(), (a && (!b || (a.t || 0) >= (b.t || 0)) ? a : b) || {}); for (const k of ["days", "hdays", "pdays", "dex", "laws", "runs", "kofi", "ach", "seen", "rc"]) if (!s[k] || typeof s[k] !== "object") s[k] = {}; if (!Array.isArray(s.miss)) s.miss = []; return s; }
 // 保存の前に読み直す（別のタブで進めた記録を消さない）
 function save(fn) { const s = load(); fn(s); s.t = Math.max(Date.now(), (s.t || 0) + 1); const j = JSON.stringify(s); try { localStorage.setItem(KEY, j); mem = null; } catch (e) { mem = j; } return s; }
 const bookOf = (s, m) => (m === "d" ? s.days : m === "h" ? s.hdays : m === "a" ? s.pdays : null);
 const runKey = (mode, date) => (mode === "a" ? "a:" + date : mode);
+const isDone = (r) => !!r && (!!r.over || r.res.length >= r.plan.length); // over：連戦で盾が尽きた
+const dexN = (s, v) => MON.filter((m) => (s.dex[m.id + (v ? "*" : "")] || {}).w > 0).length; // 図鑑に載った魔物の数（v：真の姿）
+const seenIx = (s) => MON.map((m, i) => (s.seen[m.id] || (s.dex[m.id] || {}).w > 0 ? i : -1)).filter((i) => i >= 0);
+const VWIN = 3; // 真の姿は、その魔物を3回討伐すると練習で戦える
 const recs = (b) => Object.entries(b || {}).filter(([k, r]) => DAYRE.test(k) && r && Array.isArray(r.st)).map(([, r]) => r);
 function streak(days) { let k = todayKey(), n = 0; if (!days[k]) k = prevDay(k); while (days[k]) { n++; k = prevDay(k); } return n; }
 function maxStreak(days) { let best = 0; for (const k of Object.keys(days)) { if (!DAYRE.test(k) || days[prevDay(k)]) continue; let n = 0, d = k; while (days[d]) { n++; d = nextDay(d); } best = Math.max(best, n); } return best; }
@@ -282,19 +295,22 @@ const ACH = [
   ["w1", "⚔️", "初めての討伐", "魔物を1体討伐する", (s) => [wins(s), 1]],
   ["p1", "🌟", "完全討伐", "★3で1体討伐する", (s) => [perfect(s), 1]],
   ["p20", "💫", "★3を20体", "★3で20体討伐する", (s) => [perfect(s), 20]],
-  ["clean", "👑", "一日の完勝", "今日の3体を全部★3で", (s) => [cleanDays(s), 1]],
+  ["clean", "👑", "一日の完勝", "今日の5体を全部★3で", (s) => [cleanDays(s), 1]],
   ["h1", "🐉", "大魔討伐", "上級の無法大君を討伐する", (s) => [recs(s.hdays).filter((r) => r.st[0] > 0).length, 1]],
   ["h5", "🔥", "大魔を5回", "無法大君を5回討伐する", (s) => [recs(s.hdays).filter((r) => r.st[0] > 0).length, 5]],
-  ["m6", "📕", "図鑑に6体", "6種類の魔物を討伐する", (s) => [Object.values(s.dex).filter((d) => d.w > 0).length, 6]],
-  ["mAll", "📚", "図鑑を全部", `${MON.length}種類の魔物を全部討伐する`, (s) => [Object.values(s.dex).filter((d) => d.w > 0).length, MON.length]],
+  ["m6", "📕", "図鑑に6体", "6種類の魔物を討伐する", (s) => [dexN(s), 6]],
+  ["mAll", "📚", "図鑑を全部", `${MON.length}種類の魔物を全部討伐する`, (s) => [dexN(s), MON.length]],
+  ["v1", "🌑", "真の姿", "真の姿の魔物を討伐する（練習）", (s) => [dexN(s, 1), 1]],
+  ["e10", "🔗", "10連戦", "連戦で10体討伐する", (s) => [s.ebest || 0, 10]],
+  ["rc20", "💭", "思い出す20問", "条文帳の「思い出す」で20問当てる", (s) => [s.rcok || 0, 20]],
   ["l30", "📜", "条文30条", "条文帳に30条を集める", (s) => [Object.keys(s.laws).filter((k) => LAWS[k]).length, 30]],
   ["lAll", "⚖️", "条文帳を全部", `${LAWIDS.length}条を全部集める`, (s) => [Object.keys(s.laws).filter((k) => LAWS[k]).length, LAWIDS.length]],
   ["d3", "🌙", "3日の討伐", "3日遊ぶ", (s) => [playDays(s), 3]],
   ["d30", "🌕", "30日の討伐", "30日遊ぶ", (s) => [playDays(s), 30]],
-  ["st7", "🗓", "7日つづけて", "今日の3体を7日つづけて", (s) => [maxStreak(s.days), 7]],
+  ["st7", "🗓", "7日つづけて", "今日の5体を7日つづけて", (s) => [maxStreak(s.days), 7]],
 ];
 const achOf = (s) => ACH.map(([id, ic, name, cond, f]) => { const [n, g] = f(s); return { id, ic, name, cond, n: Math.min(n, g), g, got: n >= g }; });
-// 取りこぼした日：きのうから7日前までで、今日の3体を遊んでいない日（始めた日 EPOCH より前は出さない）
+// 取りこぼした日：きのうから7日前までで、今日の5体を遊んでいない日（始めた日 EPOCH より前は出さない）
 function missedDays(s, k = todayKey()) { const out = []; let d = k; for (let i = 0; i < 7; i++) { d = prevDay(d); if (d < EPOCH) break; if (!s.days[d] && !s.pdays[d]) out.push(d); } return out; }
 
 // ---- 魔物の絵（SVG。形・色・目・角の組み合わせで描く。ほかの作品の絵は使わない）----
@@ -308,6 +324,10 @@ const BODY = [
 ];
 function spiky() { let d = ""; for (let i = 0; i < 20; i++) { const a = (i / 20) * Math.PI * 2 - Math.PI / 2, r = i % 2 ? 66 : 84; d += (i ? "L" : "M") + (100 + Math.cos(a) * r).toFixed(1) + " " + (110 + Math.sin(a) * r * 0.92).toFixed(1); } return d + "Z"; }
 let SVGN = 0;
+// 色相を回す（真の姿の色）
+function hue(hex, deg) { const n = parseInt(hex.slice(1), 16), r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn; let h = 0; const sat = d ? d / (1 - Math.abs(2 * l - 1)) : 0; if (d) h = 60 * (mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4); h = (h + deg) % 360; const c = (1 - Math.abs(2 * l - 1)) * sat, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m0 = l - c / 2; const v = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x]; return "#" + v.map((t) => Math.round((t + m0) * 255).toString(16).padStart(2, "0")).join(""); }
+const VARS = {};
+const varOf = (m) => VARS[m.id] || (VARS[m.id] = Object.assign({}, m, { id: m.id + "*", name: "真・" + m.name, kana: "しん・" + m.kana, lore: m.lore + "（真の姿）", look: Object.assign({}, m.look, { c: hue(m.look.c, 150), v: 1 }) }));
 // opt.dmg：受けた傷の割合（0〜1）。斬られるたびに、ひび・欠け・折れた角・煙が増え、色があせて体が傾く
 const CRACKS = ["M42 82L54 92L48 100L60 112", "M160 78L148 90L154 98L142 108", "M96 150L104 138L98 130L110 122", "M48 118L62 122L58 132L72 136", "M152 124L138 128L144 140L130 146", "M100 50L94 62L102 70L96 82"];
 const BITES = [[30, 92, 17], [170, 142, 19], [68, 186, 17]];
@@ -320,7 +340,7 @@ function monSvg(m, opt = {}) {
   const crown = big ? `<path d="M64 40L72 14L88 32L100 6L112 32L128 14L136 40Z" fill="#e6b84c" stroke="#7a5410" stroke-width="2"${broke ? ` transform="rotate(${k >= 1 ? 26 : 14} 100 30) translate(${k >= 1 ? 18 : 8} 4)"` : ""}/>` : "";
   const dead = k >= 1, lid = k >= 0.45;
   const ey = eyes.map(([x, y, r], i) => dead ? `<path class="eye" d="M${x - r * 0.6} ${y - r * 0.6}L${x + r * 0.6} ${y + r * 0.6}M${x + r * 0.6} ${y - r * 0.6}L${x - r * 0.6} ${y + r * 0.6}" stroke="#1a0f2e" stroke-width="${Math.max(4, r * 0.35)}" stroke-linecap="round"/>`
-    : `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff6d0"/><circle class="eye" cx="${x}" cy="${y + 2}" r="${r * 0.48}" fill="#1a0f2e"/><circle cx="${x - r * 0.25}" cy="${y - r * 0.3}" r="${r * 0.18}" fill="#fff"/>${lid && i === 0 ? `<path d="M${x - r - 1.5} ${y + 1}A${r + 1.5} ${r + 1.5} 0 0 1 ${x + r + 1.5} ${y + 1}Z" fill="${shade(c, -0.35)}" stroke="#1a0f2e" stroke-width="2"/>` : ""}`).join("");
+    : `<circle cx="${x}" cy="${y}" r="${r}" fill="${L.v ? "#ffd0c8" : "#fff6d0"}"/><circle class="eye" cx="${x}" cy="${y + 2}" r="${r * 0.48}" fill="#1a0f2e"/><circle cx="${x - r * 0.25}" cy="${y - r * 0.3}" r="${r * 0.18}" fill="#fff"/>${lid && i === 0 ? `<path d="M${x - r - 1.5} ${y + 1}A${r + 1.5} ${r + 1.5} 0 0 1 ${x + r + 1.5} ${y + 1}Z" fill="${shade(c, -0.35)}" stroke="#1a0f2e" stroke-width="2"/>` : ""}`).join("");
   const mouth = k >= 0.6 ? `<path d="M74 152Q86 140 98 150Q110 160 126 146" fill="none" stroke="#1a0f2e" stroke-width="5" stroke-linecap="round" opacity=".85"/>` : `<path d="M70 140Q100 160 130 140L122 148L114 141L106 150L98 142L90 150L82 141L76 147Z" fill="#1a0f2e" opacity=".85"/>`;
   const nc = Math.round(k * CRACKS.length), nb = (k >= 0.3) + (k >= 0.6) + (k >= 0.95);
   const cracks = CRACKS.slice(0, nc).map((d) => `<path class="crack" d="${d}" fill="none" stroke="#1a0f2e" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#ffffff55" stroke-width="1.2" transform="translate(1.5 1)"/>`).join("");
@@ -342,29 +362,57 @@ const later = (ms, fn) => { const v = VIEW; setTimeout(() => { if (v === VIEW) f
 const draw = (html) => { VIEW++; app.innerHTML = html; window.scrollTo(0, 0); };
 const md = (k) => `${+k.slice(5, 7)}/${+k.slice(8, 10)}`;
 function toast(t) { const d = document.createElement("div"); d.className = "toast"; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 1800); }
+// ---- 効果音（Web Audio で端末の中で作る。音のファイルも外への通信も無い。押したときだけ鳴らす＝ブラウザの自動再生の決まり）----
+const SKEY = KEY + "-snd", SND = { ctx: null, log: [] };
+const sndOn = () => { try { return localStorage.getItem(SKEY) !== "0"; } catch (e) { return true; } };
+const sndBtn = (cls = "") => `<button class="icon snd ${cls}" id="snd" aria-label="効果音" aria-pressed="${sndOn()}">${sndOn() ? "🔊" : "🔇"}</button>`;
+document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("#snd"); if (!b) return; const on = !sndOn(); try { localStorage.setItem(SKEY, on ? "1" : "0"); } catch (x) {} b.textContent = on ? "🔊" : "🔇"; b.setAttribute("aria-pressed", String(on)); if (on) sfx("hint"); });
+function sfx(name) {
+  SND.log = [...SND.log, name].slice(-20);
+  if (!sndOn()) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    const ctx = SND.ctx || (SND.ctx = new AC()); if (ctx.state === "suspended") ctx.resume();
+    const t = ctx.currentTime + 0.02, out = ctx.createGain(); out.gain.value = 0.2; out.connect(ctx.destination);
+    const osc = (f, at, d, type = "sine", v = 0.8, f2) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = type; o.frequency.setValueAtTime(f, t + at); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + at + d); g.gain.setValueAtTime(0.0001, t + at); g.gain.exponentialRampToValueAtTime(v, t + at + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + at + d); o.connect(g); g.connect(out); o.start(t + at); o.stop(t + at + d + 0.05); };
+    let z = 22222; // 雑音は決まった数の並びで作る（乱数は使わない）
+    const noise = (at, d, f, v = 0.8, f2) => { const n = Math.max(1, Math.floor(ctx.sampleRate * d)), buf = ctx.createBuffer(1, n, ctx.sampleRate), a = buf.getChannelData(0); for (let i = 0; i < n; i++) { z = (z * 1103515245 + 12345) & 0x7fffffff; a[i] = (z / 0x3fffffff - 1) * (1 - i / n); } const src = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), g = ctx.createGain(); src.buffer = buf; bp.type = "bandpass"; bp.Q.value = 1.2; bp.frequency.setValueAtTime(f, t + at); if (f2) bp.frequency.exponentialRampToValueAtTime(f2, t + at + d); g.gain.value = v; src.connect(bp); bp.connect(g); g.connect(out); src.start(t + at); };
+    if (name === "kei") { noise(0, 0.16, 4000, 1, 700); noise(0.09, 0.16, 3500, 1, 600); osc(500, 0, 0.18, "sawtooth", 0.25, 90); } // 刃：2度の風切り
+    else if (name === "min") { [0, 0.07, 0.14, 0.21].forEach((at, i) => osc(i % 2 ? 2100 : 1700, at, 0.09, "triangle", 0.5)); osc(110, 0.24, 0.25, "sine", 0.8); } // 鎖：じゃらり
+    else if (name === "ken") { [523, 659, 784, 1047].forEach((f, i) => osc(f, i * 0.06, 0.7, "sine", 0.35)); } // 光：上がる和音
+    else if (name === "rou") { [[880, 0], [660, 0.32]].forEach(([f, at]) => { osc(f, at, 1.1, "sine", 0.6); osc(f * 2.76, at, 0.45, "sine", 0.18); osc(f * 5.4, at, 0.2, "sine", 0.08); }); } // 鐘：ごーん
+    else if (name === "sho") { noise(0, 0.12, 1400, 0.7); osc(330, 0.1, 0.14, "square", 0.25, 220); osc(880, 0.16, 0.3, "sine", 0.4); } // 札：ぺたり
+    else if (name === "miss") { osc(180, 0, 0.32, "sawtooth", 0.5, 55); noise(0, 0.22, 380, 0.9); } // 反撃
+    else if (name === "win") { [523, 659, 784, 1047, 1319].forEach((f, i) => osc(f, i * 0.08, 0.35, "triangle", 0.4)); }
+    else if (name === "lost") { [392, 330, 262].forEach((f, i) => osc(f, i * 0.16, 0.3, "triangle", 0.35)); }
+    else if (name === "hint") { osc(1200, 0, 0.16, "sine", 0.35, 1900); }
+    else if (name === "regen") { osc(300, 0, 0.4, "sine", 0.4, 600); }
+  } catch (e) {}
+}
 const buzz = (n = 12) => { try { navigator.vibrate && navigator.vibrate(n); } catch (e) {} };
 const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 const footer = () => `<footer><a href="#" id="f-how">遊び方</a><a href="${FEEDBACK}" target="_blank" rel="noopener">感想を送る</a><a href="https://ko-fi.com/satouaaaaa" target="_blank" rel="noopener">Ko-fi で応援</a></footer>`;
 function bindFooter() { const h = $("f-how"); if (h) h.onclick = (e) => { e.preventDefault(); openHow(); }; }
 function openHow() { $("fb2").href = FEEDBACK; const d = $("howto"); if (d.showModal) d.showModal(); else d.setAttribute("open", ""); }
 $("howto-ok").onclick = () => { const d = $("howto"); d.close ? d.close() : d.removeAttribute("open"); save((s) => { s.tut = true; }); };
-const back = (t, sub = "") => `<header><button class="icon" id="back" aria-label="もどる">←</button><h1>${t}${sub ? `<small>${sub}</small>` : ""}</h1><span style="min-width:44px"></span></header>`;
+const back = (t, sub = "") => `<header><button class="icon" id="back" aria-label="もどる">←</button><h1>${t}${sub ? `<small>${sub}</small>` : ""}</h1>${sndBtn()}</header>`;
 
 // ---- ホーム ----
 function home() {
   const s = load(), k = todayKey(), done = s.days[k], hdone = s.hdays[k];
-  for (const m of Object.keys(s.runs)) { const r = s.runs[m]; if (r && r.res.length >= r.plan.length) { RK = m; return finish(); } } // 終えた回の結果をまだ見ていなければ、先に見せる
+  for (const m of Object.keys(s.runs)) { const r = s.runs[m]; if (r && isDone(r)) { RK = m; return finish(); } } // 終えた回の結果をまだ見ていなければ、先に見せる
   const rd = s.runs.d && s.runs.d.date === k ? s.runs.d : null, rh = s.runs.h && s.runs.h.date === k ? s.runs.h : null;
   const trio = G.dailyMons(k).map((i) => MON[i]);
-  const ri = rankIx(s.xp), nr = nextRank(s.xp), miss = missedDays(s, k).length;
-  draw(`
+  const ri = rankIx(s.xp), nr = nextRank(s.xp), miss = missedDays(s, k).length, nSeen = seenIx(s).length, re = s.runs.e && !isDone(s.runs.e) ? s.runs.e : null, art = WART[G.weekArt(k)];
+  draw(`${sndBtn("top")}
     <h1 class="title">条文討伐</h1>
-    <p class="lead">悪事をはたらく魔物を、正しい条文で斬る。<br>だれでも同じ1日3体。</p>
+    <p class="lead">悪事をはたらく魔物を、正しい条文で斬る。<br>だれでも同じ1日5体。</p>
     <div class="trio ${done ? "" : "shade"}">${trio.map((m) => `<div>${monSvg(m)}<span>${done ? esc(m.name) : "？？？"}</span></div>`).join("")}</div>
     ${done ? `<div class="share">今日の討伐　${done.st.map(mark).join("")}</div>` : ""}
-    <button class="main" id="go-d">${done ? "今日の結果を見る" : rd ? `続きから（${rd.res.length + 1}体目）` : `今日の3体を討伐する <small>#${dayNo(k)}</small>`}</button>
-    ${done ? `<button class="main alt" id="go-h">${hdone ? "上級の結果を見る" : rh ? "上級の続きから" : "上級：無法大君（ヒントなし・カード4枚）"}</button>` : ""}
-    <div class="row"><button class="sub" id="go-p">練習${s.miss.length ? ` <small style="color:var(--gold)">おさらい${s.miss.length}</small>` : ""}</button><button class="sub" id="go-dex">魔物図鑑 ${Object.values(s.dex).filter((d) => d.w > 0).length}/${MON.length}</button></div>
+    <button class="main" id="go-d">${done ? "今日の結果を見る" : rd ? `続きから（${rd.res.length + 1}体目）` : `今日の5体を討伐する <small>#${dayNo(k)}</small>`}</button>
+    ${done ? `<button class="main alt" id="go-h">${hdone ? "上級の結果を見る" : rh ? "上級の続きから" : `上級：無法大君 <small>今週の技「${art[0]}」</small>`}</button>` : ""}
+    <button class="sub" id="go-e" ${nSeen >= G.DN ? "" : "disabled"}>${nSeen >= G.DN ? `🔗 連戦${re ? `の続きから（${re.res.filter((x) => x.st).length}体討伐）` : s.ebest ? ` <small style="color:var(--gold)">最高${s.ebest}体</small>` : "：盾が尽きるまで何体でも"}` : "🔗 連戦（今日の5体に出会うと開く）"}</button>
+    <div class="row"><button class="sub" id="go-p">練習${s.miss.length ? ` <small style="color:var(--gold)">おさらい${s.miss.length}</small>` : ""}</button><button class="sub" id="go-dex">魔物図鑑 ${dexN(s)}/${MON.length}</button></div>
     <div class="row"><button class="sub" id="go-book">条文帳 ${Object.keys(s.laws).filter((x) => LAWS[x]).length}/${LAWIDS.length}</button><button class="sub" id="go-ach">実績 ${achOf(s).filter((a) => a.got).length}/${ACH.length}</button></div>
     <button class="sub" id="go-cal">カレンダー${miss ? ` <small style="color:var(--gold)">あとから遊べる日 ${miss}</small>` : ""}</button>
     <div class="stats"><div><b>${playDays(s)}</b><small>遊んだ日</small></div><div><b>${wins(s)}</b><small>討伐した数</small></div><div><b>${s.xp}</b><small>当てた条文</small></div></div>
@@ -373,6 +421,7 @@ function home() {
   $("go-d").onclick = () => (k !== todayKey() ? home() : done ? result("d", k) : startRun("d"));
   if ($("go-h")) $("go-h").onclick = () => (hdone ? result("h", k) : k === todayKey() ? startRun("h") : home());
   $("go-p").onclick = practiceMenu;
+  $("go-e").onclick = () => startRun("e");
   $("go-dex").onclick = dexView;
   $("go-book").onclick = bookView;
   $("go-ach").onclick = achView;
@@ -383,22 +432,29 @@ function home() {
 
 // ---- 回を始める ----
 let RK = "d", SEQ = 0; // RK：遊んでいる回の置き場（runs のキー）
-const newCur = () => ({ p: 0, hp: null, me: ME, miss: 0, hint: false, gone: null, ans: null });
-const hpOf = (b) => (b.m === -1 ? D.BOSS.hp : b.m === -2 ? b.hp : 3);
+const newCur = (me = ME) => ({ p: 0, hp: null, me, miss: 0, hint: false, gone: null, ans: null });
+const hpOf = (b) => (b.m === -1 ? D.BOSS.hp : b.m === -2 ? b.hp : b.v ? 4 : 3);
+const meOf = (b) => (b && b.art === "guard" ? 2 : ME); // 盾の数（今週の大魔の技「盾くだき」は2つ）
+// 今週の大魔の技（だれでも同じ。週ごとに替わる）
+const WART = { regen: ["再生", "外すと大君の体力が1戻る"], guard: ["盾くだき", "盾が2つから"], text: ["名隠し", "札に条文の名前が出ず、書き出しだけ"] };
 function startRun(mode, opt) {
   const k = mode === "a" ? opt : todayKey(), rk = runKey(mode, k);
-  const live = (s) => s.runs[rk] && s.runs[rk].date === k && s.runs[rk].res.length < s.runs[rk].plan.length;
+  const live = (s) => s.runs[rk] && (s.runs[rk].date === k || mode === "e") && !isDone(s.runs[rk]);
   if (mode === "a" && !live(load()) && !missedDays(load()).includes(k)) return calendar(); // 7日より前・遊んだ日・今日や未来は始めない
   if (opt === "review" && !load().miss.length) return practiceMenu(); // おさらいする問題が無い
+  if (mode === "e" && seenIx(load()).length < G.DN) return home(); // 連戦は出会った魔物だけ（今日の5体のあとで開く）
+  if (mode === "p" && typeof opt === "number" && !seenIx(load()).includes(opt)) return practiceMenu(); // まだ出会っていない魔物とは練習しない
+  if (mode === "p" && opt && opt.v && ((load().dex[MON[opt.m].id] || {}).w || 0) < VWIN) return practiceMenu();
   save((s) => {
-    if (mode !== "p" && live(s)) return; // 続きから
+    if (mode !== "p" && live(s)) return; // 続きから（連戦も、閉じたところから）
     if ((mode === "d" && s.days[k]) || (mode === "h" && s.hdays[k]) || (mode === "a" && (s.days[k] || s.pdays[k]))) return; // 別のタブで終えていたら、もう一度は始めない
     let plan;
     if (mode === "d" || mode === "a") plan = G.dailyPlan(k);
     else if (mode === "h") plan = G.hardPlan(k);
+    else if (mode === "e") { plan = G.endlessPlan(G.seedOf(k + ":e:" + (s.en || 0)), seenIx(s)); s.en = (s.en || 0) + 1; }
     else if (opt === "review") { const list = s.miss.slice(0, 5).map((x) => x.split(":").map(Number)).filter(([m, q]) => MON[m] && MON[m].qs[q]); plan = [{ m: -2, hp: list.length, seed: Math.floor(Math.random() * 2 ** 31), order: [...list, ...list, ...list] }]; }
-    else plan = G.practicePlan(Math.floor(Math.random() * 2 ** 31), opt);
-    s.runs[rk] = { mode, date: k, plan, res: [], cur: newCur(), id: Date.now().toString(36) + "-" + (++SEQ).toString(36) };
+    else plan = G.practicePlan(Math.floor(Math.random() * 2 ** 31), opt && opt.v ? opt.m : opt, opt && opt.v ? 1 : 0);
+    s.runs[rk] = { mode, date: k, plan, res: [], cur: newCur(meOf(plan[0])), id: Date.now().toString(36) + "-" + (++SEQ).toString(36) };
   });
   RK = rk;
   const s = load();
@@ -409,34 +465,37 @@ function startRun(mode, opt) {
 // ---- 戦い ----
 const battle = (r) => r.plan[r.res.length];
 const askOf = (b, p) => (b.m >= 0 ? MON[b.m] : MON[b.order[Math.min(p, b.order.length - 1)][0]]).ask; // 魔物ごとの問いかけ（何を答えるか）
-const monOf = (b, p) => (b.m === -1 ? D.BOSS : b.m === -2 ? MON[b.order[Math.min(p, b.order.length - 1)][0]] : MON[b.m]);
-const nCards = (r) => (r.mode === "h" ? 4 : 3);
+const monOf = (b, p) => (b.m === -1 ? D.BOSS : b.m === -2 ? MON[b.order[Math.min(p, b.order.length - 1)][0]] : b.v ? varOf(MON[b.m]) : MON[b.m]);
+const nCards = (r) => (r.mode === "h" || (battle(r) || {}).v ? 4 : 3);
+const clip = (t, n) => (t.length > n ? t.slice(0, n) + "…" : t);
 const choicesNow = (r) => { const b = battle(r), q = G.qOf(b, r.cur.p); return { b, q, opts: G.choicesOf(q, (b.seed + r.cur.p * 7919) >>> 0, nCards(r)) }; };
 const starsOf = (c) => { const e = c.miss + (c.hint ? 1 : 0); return e === 0 ? 3 : e === 1 ? 2 : 1; };
-function title(r) { const n = r.plan.length; return r.mode === "d" ? `今日の3体 ${r.res.length + 1}/${n}` : r.mode === "h" ? "上級：無法大君" : r.mode === "a" ? `${md(r.date)} の3体 ${r.res.length + 1}/${n}` : r.plan[0].m === -2 ? "おさらい" : "練習"; }
+function title(r) { const n = r.plan.length; return r.mode === "e" ? `連戦 ${r.res.filter((x) => x.st).length}体討伐` : r.mode === "d" ? `今日の5体 ${r.res.length + 1}/${n}` : r.mode === "h" ? "上級：無法大君" : r.mode === "a" ? `${md(r.date)} の5体 ${r.res.length + 1}/${n}` : r.plan[0].m === -2 ? "おさらい" : "練習"; }
 function play(fx) {
   const s = load(), r = s.runs[RK];
   if (!r) return home();
   if (r.view) return beaten(r); // 最後の1体も、討伐の画面を見てから結果へ
-  if (r.res.length >= r.plan.length) return finish();
-  const { b, q, opts } = choicesNow(r), c = r.cur, m = monOf(b, c.p), hpMax = hpOf(b), hp = c.hp === null ? hpMax : c.hp;
-  const a = c.ans, L = LAWS[q.a];
-  draw(`${back(title(r), r.mode === "p" ? "記録には入りません（図鑑・条文帳には載ります）" : r.mode === "a" ? "あとから（連続の日には入りません）" : "")}
-    ${r.plan.length > 1 ? `<div class="dots">${r.plan.map((_, i) => `<i class="${i < r.res.length ? "done" : i === r.res.length ? "on" : ""}"></i>`).join("")}</div>` : ""}
+  if (isDone(r)) return finish();
+  const { b, q, opts } = choicesNow(r), c = r.cur, m = monOf(b, c.p), hpMax = hpOf(b), hp = c.hp === null ? hpMax : c.hp, mx = meOf(b);
+  const a = c.ans, L = LAWS[q.a], hide = b.art === "text";
+  if (b.m >= 0 && !s.seen[MON[b.m].id]) save((x) => { x.seen[MON[b.m].id] = 1; }); // 出会った魔物（練習・連戦で選べる）
+  draw(`${back(title(r), r.mode === "p" ? "記録には入りません（図鑑・条文帳には載ります）" : r.mode === "a" ? "あとから（連続の日には入りません）" : r.mode === "e" ? `盾が尽きるまで。${VWIN}体ごとに盾が1つ戻る` : "")}
+    ${r.plan.length > 1 && r.mode !== "e" ? `<div class="dots">${r.plan.map((_, i) => `<i class="${i < r.res.length ? "done" : i === r.res.length ? "on" : ""}"></i>`).join("")}</div>` : ""}
     <div class="arena"><div class="mon${!a && c.p === 0 && !fx ? " enter" : ""}" id="mon">${monSvg(m, { dmg: (hpMax - hp) / hpMax })}</div>
-      <div class="mname">${esc(m.name)}<small>${esc(m.kana)}・${esc(m.field)}</small></div>
+      <div class="mname${m.look.v ? " vv" : ""}">${esc(m.name)}<small>${esc(m.kana)}・${esc(m.field)}</small></div>
+      ${b.art && WART[b.art] ? `<p class="wart">今週の技「${WART[b.art][0]}」：${WART[b.art][1]}</p>` : ""}
       <div class="hpbar" aria-label="魔物の体力 ${hp}/${hpMax}">${Array.from({ length: hpMax }, (_, i) => `<i class="${i < hp ? "" : "off"}"></i>`).join("")}</div></div>
     <div class="deed" id="deed">${esc(q.s)}</div>
     ${a ? "" : `<p class="ask">${esc(askOf(b, c.p))}<small>条文を選んで斬る</small></p>`}
-    <div class="cards${a ? " done" : ""}" id="cards">${opts.map((id) => { const x = LAWS[id], gone = c.gone === id; return `<button class="card${a && id === q.a ? " right" : ""}${a && id === a.pick && !a.ok ? " wrong" : ""}${gone ? " gone" : ""}" data-id="${id}" ${a || gone ? "disabled" : ""} aria-label="${x.law}${x.no} ${x.name}"><span class="no">${x.law}<b>${x.no}</b></span><span class="nm">${esc(x.name)}</span></button>`; }).join("")}</div>
+    <div class="cards${a ? " done" : ""}" id="cards">${opts.map((id) => { const x = LAWS[id], gone = c.gone === id; return `<button class="card${a && id === q.a ? " right" : ""}${a && id === a.pick && !a.ok ? " wrong" : ""}${gone ? " gone" : ""}" data-id="${id}" ${a || gone ? "disabled" : ""} aria-label="${x.law}${x.no} ${hide && !a ? "" : x.name}"><span class="no">${x.law}<b>${x.no}</b></span><span class="nm${hide && !a ? " tx" : ""}">${esc(hide && !a ? clip(x.text.split("…")[0], 26) : x.name)}</span></button>`; }).join("")}</div>
     ${a ? `<div class="law${a.ok ? "" : " ng"}" id="law"><div class="hd"><b>${a.ok ? "命中" : "反撃"}</b>${L.law}${L.no}（${esc(L.cap || L.name)}）</div><q>${esc(L.text)}</q><p>${esc(q.w)}</p>${a.ok ? "" : `<p class="pick">選んだ${LAWS[a.pick].law}${LAWS[a.pick].no}（${esc(LAWS[a.pick].name)}）は「${esc(LAWS[a.pick].text.split("…")[0])}」の決まり。</p>`}<button class="main" id="next">${a.ok && hp <= 0 ? "とどめ！" : c.me <= 0 ? "逃げられた…" : "次へ"}</button></div>` : ""}
-    <div class="foot"><div class="shield" aria-label="盾 ${c.me}/${ME}"><small>盾</small>${Array.from({ length: ME }, (_, i) => `<span class="${i < c.me ? "" : "off"}">🛡️</span>`).join("")}</div>
+    <div class="foot"><div class="shield" aria-label="盾 ${c.me}/${mx}"><small>盾</small>${Array.from({ length: mx }, (_, i) => `<span class="${i < c.me ? "" : "off"}">🛡️</span>`).join("")}</div>
       ${r.mode === "h" ? `<small class="note">ヒントなし</small>` : `<button class="sub" id="hint" ${a || c.hint ? "disabled" : ""}>👁 見抜く${c.hint ? "（使った）" : "（★-1）"}</button>`}</div>`);
   $("back").onclick = home;
   if (!a) document.querySelectorAll(".card:not(:disabled)").forEach((el) => (el.onclick = () => answer(el.dataset.id, r.id, c.p)));
   if ($("hint")) $("hint").onclick = () => useHint(r.id, c.p);
   if ($("next")) $("next").onclick = () => next(r.id, c.p);
-  if (fx) effect(fx, $("mon"), q.a, c.combo || 0);
+  if (fx) effect(fx, $("mon"), q.a, c.combo || 0, c.rg);
   if (a && fx) later(250, () => { const l = $("law"); if (l && l.scrollIntoView) l.scrollIntoView({ block: "nearest", behavior: "smooth" }); });
 }
 // 攻撃の技は条文の法律で変わる。刑法＝刃・民法＝鎖・憲法＝光の柱・労働基準法＝鐘の波・消費者の法律＝封じの札
@@ -448,17 +507,17 @@ function artHtml(kind) {
   if (kind === "rou") return `<div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>`;
   return `<div class="charm">封</div>`;
 }
-function effect(kind, el, law, combo) {
+function effect(kind, el, law, combo, rg) {
   if (!el) return;
-  if (kind === "hit") { const [k, name] = ARTS[LAWS[law].law] || ARTS.刑法; el.classList.add("hit", "fx-" + k); el.insertAdjacentHTML("beforeend", `${artHtml(k)}<div class="pop">${name}${combo >= 2 ? `<small>連撃×${combo}</small>` : ""}</div>`); buzz(18); }
-  if (kind === "miss") { el.classList.add("lunge"); el.insertAdjacentHTML("beforeend", `<div class="pop bad">反撃</div>`); document.body.insertAdjacentHTML("beforeend", `<div class="hurt"></div>`); setTimeout(() => document.querySelectorAll(".hurt").forEach((x) => x.remove()), 600); buzz([30, 40, 30]); }
+  if (kind === "hit") { const [k, name] = ARTS[LAWS[law].law] || ARTS.刑法; el.classList.add("hit", "fx-" + k); el.insertAdjacentHTML("beforeend", `${artHtml(k)}<div class="pop">${name}${combo >= 2 ? `<small>連撃×${combo}</small>` : ""}</div>`); buzz(18); sfx(k); }
+  if (kind === "miss") { el.classList.add("lunge"); el.insertAdjacentHTML("beforeend", `<div class="pop bad">反撃${rg ? "<small>再生</small>" : ""}</div>`); sfx(rg ? "regen" : "miss"); document.body.insertAdjacentHTML("beforeend", `<div class="hurt"></div>`); setTimeout(() => document.querySelectorAll(".hurt").forEach((x) => x.remove()), 600); buzz([30, 40, 30]); }
 }
 // 答える。書き込む前に、保存した回と問題がこの画面と同じか確かめる（古いタブで二重に答えない）
 function answer(id, runId, p) {
   let ok = null;
   save((s) => {
     const r = s.runs[RK];
-    if (!r || r.id !== runId || r.view || r.res.length >= r.plan.length || r.cur.p !== p || r.cur.ans) return;
+    if (!r || r.id !== runId || r.view || isDone(r) || r.cur.p !== p || r.cur.ans) return;
     const { b, q, opts } = choicesNow(r), c = r.cur;
     if (!opts.includes(id) || id === c.gone) return;
     if (c.hp === null) c.hp = hpOf(b);
@@ -467,13 +526,14 @@ function answer(id, runId, p) {
     const mq = b.m === -1 || b.m === -2 ? b.order[p].join(":") : b.m + ":" + b.order[p];
     s.miss = s.miss.filter((x) => x !== mq);
     if (ok) { c.hp--; if (!s.laws[q.a]) c.nl = [...(c.nl || []), q.a]; s.laws[q.a] = (s.laws[q.a] || 0) + 1; s.xp = (s.xp || 0) + 1; c.combo = (c.combo || 0) + 1; } // nl：この戦いで初めて条文帳に載った条文。combo：続けて当てた数
-    else { c.me--; c.miss++; c.combo = 0; s.miss = [mq, ...s.miss].slice(0, 12); } // 外した問題は、おさらいでもう一度（間をあけて解き直すと覚えやすい）
+    else { c.me--; c.miss++; c.combo = 0; s.miss = [mq, ...s.miss].slice(0, 12); c.rg = 0; if (b.art === "regen" && c.hp < hpOf(b)) { c.hp++; c.rg = 1; } } // 今週の技「再生」：外すと体力が1戻る // 外した問題は、おさらいでもう一度（間をあけて解き直すと覚えやすい）
   });
   if (ok === null) return play();
   play(ok ? "hit" : "miss");
 }
 function useHint(runId, p) {
   save((s) => { const r = s.runs[RK]; if (!r || r.id !== runId || r.mode === "h" || r.cur.p !== p || r.cur.ans || r.cur.hint) return; const { q, opts, b } = choicesNow(r); r.cur.hint = true; r.cur.gone = G.hintOf(opts, q, (b.seed + p) >>> 0); });
+  sfx("hint");
   play();
 }
 // 次へ：体力が尽きたら討伐、盾が尽きたら逃げられる。どちらでもなければ次の悪事
@@ -485,24 +545,28 @@ function next(runId, p) {
     if (!end) { c.p++; c.ans = null; c.gone = null; return; }
     const st = end === "win" ? starsOf(c) : 0;
     r.res.push({ st, miss: c.miss, hint: c.hint, dmg: (hpOf(b) - (c.hp === null ? hpOf(b) : c.hp)) / hpOf(b) }); // dmg：逃げられたときの傷（逃げる絵に使う）
-    if (end === "win") { const ids = b.m === -1 ? [D.BOSS.id] : b.m === -2 ? [] : [MON[b.m].id]; for (const id of ids) { const d = s.dex[id] || { w: 0, b: 0 }; d.w++; d.b = Math.max(d.b, st); s.dex[id] = d; } if (r.mode === "p" && st === 3 && b.m >= 0) s.pstar = (s.pstar || 0) + 1; }
-    r.view = end; r.nl = c.nl || []; r.cur = newCur();
-    const bk = r.res.length >= r.plan.length ? bookOf(s, r.mode) : null;
+    if (end === "win") { const ids = b.m === -1 ? [D.BOSS.id] : b.m === -2 ? [] : [MON[b.m].id + (b.v ? "*" : "")]; for (const id of ids) { const d = s.dex[id] || { w: 0, b: 0 }; d.w++; d.b = Math.max(d.b, st); s.dex[id] = d; } if (r.mode === "p" && st === 3 && b.m >= 0) s.pstar = (s.pstar || 0) + 1; }
+    let me = meOf(r.plan[r.res.length]);
+    if (r.mode === "e") { const w = r.res.filter((x) => x.st).length; me = end === "win" ? Math.min(ME, c.me + (w % VWIN === 0 ? 1 : 0)) : 0; if (end === "lost") r.over = true; r.gain = me > c.me ? 1 : 0; s.ebest = Math.max(s.ebest || 0, w); } // 連戦：盾は持ち越し、3体ごとに1つ戻る。逃げられたら終わり
+    r.view = end; r.nl = c.nl || []; r.cur = newCur(me);
+    const bk = isDone(r) ? bookOf(s, r.mode) : null;
     if (bk && !bk[r.date]) bk[r.date] = { st: r.res.map((x) => x.st) }; // 終えた日を日ごとの記録に（結果を見る前に別の日へ移っても失わない）
   });
   play();
 }
 // 討伐（または逃げられた）の画面
 function beaten(r) {
-  const last = r.res[r.res.length - 1], b = r.plan[r.res.length - 1], m = b.m === -1 ? D.BOSS : b.m === -2 ? null : MON[b.m], win = r.view === "win";
-  const more = r.res.length < r.plan.length, lastDmg = last.dmg || 0;
+  const last = r.res[r.res.length - 1], b = r.plan[r.res.length - 1], m = b.m === -2 ? null : monOf(b, 0), win = r.view === "win";
+  const more = !isDone(r), lastDmg = last.dmg || 0;
   draw(`${back(title({ ...r, res: r.res.slice(0, -1) }))}
     <div class="arena"><div class="mon ${win ? "vanish" : "flee"}" id="mon">${m ? monSvg(m, { dmg: win ? 1 : lastDmg }) : ""}</div></div>
     <div class="win"><div class="big${win ? "" : " lost"}">${win ? "討伐！" : "逃げられた…"}</div>
       ${m ? `<div class="mname">${esc(m.name)}<small>${esc(m.lore)}</small></div>` : ""}
-      ${win ? starStr(last.st) : `<p class="note">外した条文は「おさらい」で解き直せます。</p>`}
+      ${win ? starStr(last.st) : `<p class="note">${r.mode === "e" ? `連戦おわり：${r.res.filter((x) => x.st).length}体討伐。` : ""}外した条文は「おさらい」で解き直せます。</p>`}
+      ${r.mode === "e" && win && r.gain ? `<p class="newlaw">🛡️ 盾が1つ戻った（いま${r.cur.me}つ）</p>` : ""}
       ${(r.nl || []).length ? `<p class="newlaw">📜 条文帳に新しく：${r.nl.map((k) => esc(LAWS[k].name)).join("・")}</p>` : ""}</div>
     <button class="main" id="go">${more ? "次の魔物へ" : "結果を見る"}</button>`);
+  sfx(win ? "win" : "lost");
   if (win) { const el = $("mon"); for (let i = 0; i < 14; i++) { const a = (i / 14) * Math.PI * 2; el.insertAdjacentHTML("beforeend", `<i class="spark" style="--x:${Math.cos(a) * 110}px;--y:${Math.sin(a) * 110}px;animation-delay:${200 + (i % 3) * 60}ms"></i>`); } buzz([20, 30, 60]); }
   $("back").onclick = home;
   $("go").onclick = () => { save((s) => { const x = s.runs[RK]; if (x && x.id === r.id) x.view = null; }); play(); };
@@ -512,6 +576,7 @@ function beaten(r) {
 function finish() {
   const s0 = load(), r = s0.runs[RK];
   if (!r) return home();
+  if (r.mode === "e" && !isDone(r)) return play();
   let kofi = false, fresh1 = [];
   const s = save((s) => {
     const x = s.runs[RK];
@@ -525,8 +590,9 @@ function finish() {
   });
   result(r.mode, r.date, { run: r, kofi, fresh1 });
 }
-function shareText(mode, k, st) { return `条文討伐 ${mode === "h" ? "上級" : "#" + dayNo(k)}\n${st.map(mark).join("")}\n${SITE}`; }
+function shareText(mode, k, st) { return mode === "e" ? `条文討伐 連戦 ${st.filter((x) => x).length}体討伐\n${SITE}` : `条文討伐 ${mode === "h" ? "上級" : "#" + dayNo(k)}\n${st.map(mark).join("")}\n${SITE}`; }
 function result(mode, k, opt = {}) {
+  if (mode === "e") return endResult(opt);
   const s = load(), rec = opt.run ? { st: opt.run.res.map((x) => x.st) } : (bookOf(s, mode) || {})[k];
   if (!rec) return home();
   const plan = opt.run ? opt.run.plan : mode === "h" ? G.hardPlan(k) : G.dailyPlan(k);
@@ -550,23 +616,44 @@ function result(mode, k, opt = {}) {
   bindFooter();
 }
 
+// 連戦の結果：何体討伐したかと最高
+function endResult(opt) {
+  const s = load(), r = opt.run; if (!r) return home();
+  const n = r.res.filter((x) => x.st).length, best = s.ebest || 0, txt = shareText("e", "", r.res.map((x) => x.st));
+  draw(`${back("連戦の結果")}
+    <div class="win"><div class="big">${n}<small style="font-size:18px">体</small></div><p class="note">${n >= best && n ? "最高記録！" : `最高 ${best}体`}</p></div>
+    <div class="minis">${r.res.slice(-6).map((x, i) => { const b = r.plan[r.res.length - Math.min(6, r.res.length) + i], m = monOf(b, 0); return `<div class="${x.st ? "" : "gone"}">${monSvg(m, { flat: true })}<span>${esc(m.name)}</span>${x.st ? starStr(x.st) : `<small>逃げられた</small>`}</div>`; }).join("")}</div>
+    ${opt.fresh1 && opt.fresh1.length ? `<p class="ach-new">🏅 実績：${opt.fresh1.map((a) => a.ic + a.name).join("・")}</p>` : ""}
+    <div class="shares"><a href="https://x.com/intent/post?text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">Xで投稿</a><a href="https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(SITE)}&text=${encodeURIComponent(txt)}" target="_blank" rel="noopener">LINEで送る</a><button id="copy">${navigator.share ? "結果をシェア" : "コピー"}</button></div>
+    <button class="main" id="again">もう一度 連戦</button>
+    ${s.miss.length ? `<button class="sub" id="go-rev">外した条文をおさらい（${Math.min(5, s.miss.length)}問）</button>` : ""}
+    <button class="sub" id="home">ホームへ</button>${footer()}`);
+  $("back").onclick = home; $("home").onclick = home; $("again").onclick = () => startRun("e");
+  if ($("go-rev")) $("go-rev").onclick = () => startRun("p", "review");
+  $("copy").onclick = async () => { try { if (navigator.share) await navigator.share({ text: txt }); else { await navigator.clipboard.writeText(txt); toast("コピーしました"); } } catch (e) {} };
+  bindFooter();
+}
+
 // ---- 練習 ----
 function practiceMenu() {
-  const s = load();
+  const s = load(), seen = seenIx(s);
   draw(`${back("練習", "記録には入りません（図鑑・条文帳には載ります）")}
     ${s.miss.length ? `<button class="main" id="rev">外した条文をおさらい（${Math.min(5, s.miss.length)}問）</button>` : `<p class="note">外した条文は、ここで「おさらい」できます。</p>`}
-    <p class="note">戦いたい魔物を選んでください。</p>
-    <div class="dex">${MON.map((m, i) => `<div>${monSvg(m, { flat: true })}<span><b>${esc(m.name)}</b><br>${esc(m.field)}</span><button class="sub" data-m="${i}">戦う</button></div>`).join("")}</div>${footer()}`);
+    <p class="note">出会った魔物と戦えます。${VWIN}回討伐すると「真の姿」とも戦えます。</p>
+    <div class="dex">${MON.map((m, i) => { const met = seen.includes(i), w = (s.dex[m.id] || {}).w || 0; return met ? `<div>${monSvg(m, { flat: true })}<span><b>${esc(m.name)}</b><br>${esc(m.field)}</span><span class="btns"><button class="sub" data-m="${i}">戦う</button>${w >= VWIN ? `<button class="sub vv" data-v="${i}">真の姿</button>` : ""}</span></div>` : `<div class="no">${monSvg(m, { flat: true })}<span><b>？？？</b><br>まだ出会っていない</span></div>`; }).join("")}</div>${footer()}`);
   $("back").onclick = home;
   if ($("rev")) $("rev").onclick = () => startRun("p", "review");
   document.querySelectorAll("[data-m]").forEach((b) => (b.onclick = () => startRun("p", +b.dataset.m)));
+  document.querySelectorAll("[data-v]").forEach((b) => (b.onclick = () => startRun("p", { m: +b.dataset.v, v: 1 })));
   bindFooter();
 }
 // ---- 魔物図鑑 ----
 function dexView() {
   const s = load(), all = [...MON, D.BOSS];
   draw(`${back("魔物図鑑", "討伐した魔物が載ります")}
-    <div class="dex">${all.map((m) => { const d = s.dex[m.id]; const got = d && d.w > 0; return `<div class="${got ? "" : "no"}">${monSvg(m, { flat: true })}<span><b>${got ? esc(m.name) : "？？？"}</b><br>${esc(m.field)}${got ? `<br>${esc(m.lore)}` : ""}</span><em>${got ? `${starStr(d.b)}<br>${d.w}回` : ""}</em></div>`; }).join("")}</div>${footer()}`);
+    <div class="dex">${all.map((m) => { const d = s.dex[m.id]; const got = d && d.w > 0; return `<div class="${got ? "" : "no"}">${monSvg(m, { flat: true })}<span><b>${got ? esc(m.name) : "？？？"}</b><br>${esc(m.field)}${got ? `<br>${esc(m.lore)}` : ""}</span><em>${got ? `${starStr(d.b)}<br>${d.w}回` : ""}</em></div>`; }).join("")}</div>
+    <h3 class="sec">真の姿 ${dexN(s, 1)}/${MON.length}</h3>
+    <div class="dex">${MON.map((m0) => { const m = varOf(m0), d = s.dex[m.id], got = d && d.w > 0; return `<div class="${got ? "" : "no"}">${monSvg(m, { flat: true })}<span><b>${got ? esc(m.name) : "？？？"}</b><br>${got ? esc(m.field) : `${VWIN}回討伐すると練習で戦える`}</span><em>${got ? `${starStr(d.b)}<br>${d.w}回` : ""}</em></div>`; }).join("")}</div>${footer()}`);
   $("back").onclick = home; bindFooter();
 }
 // ---- 条文帳 ----
@@ -575,10 +662,40 @@ function bookView() {
   LAWIDS.forEach((k) => (groups[LAWS[k].law] = groups[LAWS[k].law] || []).push(k));
   draw(`${back("条文帳", `当てた条文が載ります ${have}/${LAWIDS.length}`)}
     <div class="prog"><i style="width:${(have / LAWIDS.length) * 100}%"></i></div>
+    <button class="main alt" id="recall" ${have >= 3 ? "" : "disabled"}>💭 思い出す（条文の文から名前を当てる）${have >= 3 ? "" : "<small>3条集めると開く</small>"}</button>
     <div class="book">${Object.entries(groups).map(([law, ks]) => `<h3>${law}</h3>${ks.map((k) => { const L = LAWS[k], n = s.laws[k] || 0; return n ? `<details><summary><small>${L.no}</small>${esc(L.name)}<em>${n}回</em></summary><p>${esc(L.cap ? "（" + L.cap + "）" : "")}「${esc(L.text)}」</p></details>` : `<details class="no"><summary><small>${L.no}</small>？？？</summary></details>`; }).join("")}`).join("")}</div>
     <p class="note">条文は <a href="https://laws.e-gov.go.jp/" target="_blank" rel="noopener">e-Gov 法令検索</a> の本文から一部を写しています（「…」は略）。</p>${footer()}`);
   document.querySelectorAll(".book details.no").forEach((d) => d.addEventListener("toggle", () => (d.open = false)));
   $("back").onclick = home; bindFooter();
+  if (have >= 3) $("recall").onclick = recallStart;
+}
+// ---- 思い出す：集めた条文の文を見て、どの条文かを当てる（逆向きに思い出す練習。久しく出していない条文から先に＝間をあけて解き直す）----
+let RC = null;
+function recallStart() {
+  const s = save((x) => { x.rcn = (x.rcn || 0) + 1; }), have = LAWIDS.filter((k) => s.laws[k]);
+  if (have.length < 3) return bookView();
+  const R = G.rng(G.seedOf(todayKey() + ":r:" + s.rcn));
+  const list = G.shuffle(have, R).sort((a, b) => (s.rc[a] || 0) - (s.rc[b] || 0)).slice(0, 5); // 比べる中では乱数を引かない
+  RC = { list: list.map((k) => { const same = have.filter((x) => x !== k && LAWS[x].law === LAWS[k].law), other = have.filter((x) => x !== k && LAWS[x].law !== LAWS[k].law); const wrong = [...G.shuffle(same, R), ...G.shuffle(other, R)].slice(0, 2); return { k, opts: G.shuffle([k, ...wrong], R) }; }), i: 0, ok: 0, ans: null };
+  recallView();
+}
+function recallView() {
+  if (!RC) return bookView();
+  if (RC.i >= RC.list.length) {
+    draw(`${back("思い出す")}<div class="win"><div class="big">${RC.ok}/${RC.list.length}</div><p class="note">思い出せた条文。外したものは条文帳で読み直せます。</p></div>
+      <button class="main" id="again">もう一度</button><button class="sub" id="bk">条文帳へ</button>${footer()}`);
+    $("back").onclick = bookView; $("bk").onclick = bookView; $("again").onclick = recallStart; bindFooter(); return;
+  }
+  const { k, opts } = RC.list[RC.i], L = LAWS[k], a = RC.ans;
+  draw(`${back(`思い出す ${RC.i + 1}/${RC.list.length}`, "記録には入りません")}
+    <div class="deed recall" id="rtext">「${esc(L.text)}」</div>
+    ${a ? "" : `<p class="ask">これはどの条文？<small>条文帳に集めた条文から</small></p>`}
+    <div class="cards${a ? " done" : ""}">${opts.map((id) => { const x = LAWS[id]; return `<button class="card${a && id === k ? " right" : ""}${a && id === a && a !== k ? " wrong" : ""}" data-r="${id}" ${a ? "disabled" : ""}><span class="no">${x.law}<b>${x.no}</b></span><span class="nm">${esc(x.name)}</span></button>`; }).join("")}</div>
+    ${a ? `<div class="law${a === k ? "" : " ng"}" id="law"><div class="hd"><b>${a === k ? "正解" : "ちがう"}</b>${L.law}${L.no}（${esc(L.cap || L.name)}）</div><button class="main" id="next">${RC.i + 1 < RC.list.length ? "次へ" : "おわり"}</button></div>` : ""}${footer()}`);
+  $("back").onclick = () => { RC = null; bookView(); };
+  document.querySelectorAll("[data-r]:not(:disabled)").forEach((el) => (el.onclick = () => { if (RC.ans) return; RC.ans = el.dataset.r; const ok = RC.ans === k; if (ok) RC.ok++; save((s) => { s.rc[k] = dayNo(todayKey()); if (ok) s.rcok = (s.rcok || 0) + 1; }); sfx(ok ? "ken" : "miss"); recallView(); }));
+  if ($("next")) $("next").onclick = () => { RC.i++; RC.ans = null; recallView(); };
+  bindFooter();
 }
 // ---- 実績 ----
 function achView() {
@@ -604,7 +721,7 @@ function calendar(ym) {
   draw(`${back("カレンダー")}
     <div class="calnav"><button class="icon" id="pm" ${prev < EPOCH.slice(0, 7) ? "disabled" : ""} aria-label="前の月">‹</button><b>${y}年${mo}月</b><button class="icon" id="nm" ${nxt > k.slice(0, 7) ? "disabled" : ""} aria-label="次の月">›</button></div>
     <div class="cal">${"日月火水木金土".split("").map((w) => `<span class="wd">${w}</span>`).join("")}${cells.join("")}</div>
-    <div class="legend"><span>金：今日の3体</span><span>点線：あとから遊べる（7日まで）</span><span>紫の点：上級</span></div>
+    <div class="legend"><span>金：今日の5体</span><span>点線：あとから遊べる（7日まで）</span><span>紫の点：上級</span></div>
     ${st ? `<p class="note">${st}日つづけて討伐中</p>` : ""}
     <p class="note">あとから遊んだ日は、連続の日には入りません（図鑑・条文帳・実績には入ります）。</p>${footer()}`);
   $("back").onclick = home;
