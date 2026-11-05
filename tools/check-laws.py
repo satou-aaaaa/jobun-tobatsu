@@ -5,7 +5,8 @@ text は「…」で区切ったそれぞれが、その条の本文（空白を
 import json, re, subprocess, sys, urllib.parse, urllib.request
 import xml.etree.ElementTree as ET
 IDS = {"刑法": "140AC0000000045", "民法": "129AC0000000089", "憲法": "321CONSTITUTION", "労働基準法": "322AC0000000049",
-       "特定商取引法": "351AC0000000057", "消費者契約法": "412AC0000000061"}
+       "特定商取引法": "351AC0000000057", "消費者契約法": "412AC0000000061",
+       "著作権法": "345AC0000000048", "道路交通法": "335AC0000000105", "個人情報保護法": "415AC0000000057", "借地借家法": "403AC0000000090"}
 laws = json.loads(subprocess.check_output(["node", "-e", "process.stdout.write(JSON.stringify(require('./data.js').LAWS))"]))
 bad = 0
 for k, L in laws.items():

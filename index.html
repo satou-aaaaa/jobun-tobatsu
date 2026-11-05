@@ -91,6 +91,16 @@ button.sub:disabled{opacity:.4;cursor:default}
 .mon.fx-ken.hit svg{animation:smite .6s ease-out}
 @keyframes smite{0%{filter:brightness(3.5)}30%{transform:translateY(10px) scale(1.04,.92)}100%{filter:none;transform:none}}
 .mon.fx-rou.hit svg{animation:quake .55s linear}
+.ink{position:absolute;left:50%;top:48%;width:140%;height:22px;border-radius:50% 40% 60% 30%;background:linear-gradient(90deg,transparent,#1a0f2e 20%,#3b2a6b 60%,transparent);transform:translate(-50%,-50%) rotate(18deg) scaleX(0);box-shadow:0 0 10px #b9a6ff;pointer-events:none;animation:ink .5s ease-out forwards}
+.ink.i2{top:60%;height:12px;animation-delay:.14s;--r:-12deg;transform:translate(-50%,-50%) rotate(-12deg) scaleX(0);animation-name:ink2}
+@keyframes ink{60%{transform:translate(-50%,-50%) rotate(18deg) scaleX(1);opacity:1}100%{transform:translate(-50%,-50%) rotate(18deg) scaleX(1);opacity:0}}
+@keyframes ink2{60%{transform:translate(-50%,-50%) rotate(-12deg) scaleX(1);opacity:1}100%{transform:translate(-50%,-50%) rotate(-12deg) scaleX(1);opacity:0}}
+.sig{position:absolute;left:50%;top:6%;transform:translateX(-50%);display:flex;gap:8px;padding:6px 8px;border-radius:12px;background:#1a1a22;border:2px solid #444;pointer-events:none;animation:sigbox .9s ease-out forwards}
+.sig i{width:22px;height:22px;border-radius:50%;background:#333;animation:sig .9s steps(1) forwards}
+.sig i:nth-child(1){--c:#4cd07a;animation-delay:0s}.sig i:nth-child(2){--c:#ffc83d;animation-delay:.22s}.sig i:nth-child(3){--c:#ff4b3e;animation-delay:.44s}
+@keyframes sig{0%{background:var(--c);box-shadow:0 0 16px var(--c)}30%{background:#333;box-shadow:none}}
+@keyframes sigbox{85%{opacity:1}100%{opacity:0}}
+.mon.fx-sig.hit svg{animation:quake .5s linear .44s}
 @keyframes quake{0%{filter:brightness(2.4)}10%,50%,90%{transform:translateX(-7px)}30%,70%{transform:translateX(7px)}100%{filter:none;transform:none}}
 .ask small{display:block;font-size:11px;color:var(--ink2);font-weight:500;margin-top:1px}
 .ask{font-size:16px;font-weight:700;color:var(--ink)}
@@ -321,6 +331,8 @@ const BODY = [
   null,
   "M100 28C150 28 170 70 168 112C166 148 152 166 134 174C142 184 154 190 164 196C134 200 114 190 102 180C90 192 70 200 42 194C54 186 62 178 66 172C46 162 32 142 32 112C30 70 50 28 100 28Z",
   "M42 52Q42 36 58 36L142 36Q158 36 158 52L166 162Q166 184 144 184L56 184Q34 184 34 162Z",
+  "M100 26C112 26 120 36 128 50L174 150C184 172 170 186 148 186L52 186C30 186 16 172 26 150L72 50C80 36 88 26 100 26Z",
+  "M60 74C58 50 82 34 102 42C114 26 146 28 152 54C178 56 186 84 172 100C188 116 180 150 156 154C150 178 120 190 100 178C82 192 50 184 46 160C22 156 14 124 30 110C16 92 30 66 60 74Z",
 ];
 function spiky() { let d = ""; for (let i = 0; i < 20; i++) { const a = (i / 20) * Math.PI * 2 - Math.PI / 2, r = i % 2 ? 66 : 84; d += (i ? "L" : "M") + (100 + Math.cos(a) * r).toFixed(1) + " " + (110 + Math.sin(a) * r * 0.92).toFixed(1); } return d + "Z"; }
 let SVGN = 0;
@@ -337,6 +349,8 @@ function monSvg(m, opt = {}) {
   const eyes = L.e === 1 ? [[100, 100, 22]] : L.e === 2 ? [[76, 102, 15], [124, 102, 15]] : [[70, 108, 12], [130, 108, 12], [100, 82, 13]];
   // 角：傷が半分を超えると、1本が根元近くで折れる
   const horns = L.h === 0 ? "" : L.h === 1 ? `<path d="${broke ? "M100 40L94 24L101 27L106 22L112 40Z" : "M100 40L88 6L112 6Z"}" fill="${hc}" transform="translate(0 4)"/>` : `<path d="${broke ? "M62 52L54 32L60 34L63 27L82 40Z" : "M62 52L44 8L82 40Z"}" fill="${hc}"/><path d="M138 52L156 8L118 40Z" fill="${hc}"/>`;
+  const wings = L.w ? `<path class="wing" d="M44 92C18 70 -2 74 -6 92C6 92 10 100 4 110C16 106 24 112 22 124C34 114 44 116 48 122Z" fill="${shade(c, -0.3)}" stroke="${shade(c, -0.6)}" stroke-width="2.5"/><path class="wing" d="M156 92C182 70 202 74 206 92C194 92 190 100 196 110C184 106 176 112 178 124C166 114 156 116 152 122Z" fill="${shade(c, -0.3)}" stroke="${shade(c, -0.6)}" stroke-width="2.5"${broke ? ` transform="rotate(24 156 110)"` : ""}/>` : "";
+  const tail = L.t ? `<path d="M150 168C176 176 192 160 190 140C200 150 202 170 188 182C176 192 158 190 146 180Z" fill="${shade(c, -0.25)}" stroke="${shade(c, -0.6)}" stroke-width="2.5"/>` : "";
   const crown = big ? `<path d="M64 40L72 14L88 32L100 6L112 32L128 14L136 40Z" fill="#e6b84c" stroke="#7a5410" stroke-width="2"${broke ? ` transform="rotate(${k >= 1 ? 26 : 14} 100 30) translate(${k >= 1 ? 18 : 8} 4)"` : ""}/>` : "";
   const dead = k >= 1, lid = k >= 0.45;
   const ey = eyes.map(([x, y, r], i) => dead ? `<path class="eye" d="M${x - r * 0.6} ${y - r * 0.6}L${x + r * 0.6} ${y + r * 0.6}M${x + r * 0.6} ${y - r * 0.6}L${x - r * 0.6} ${y + r * 0.6}" stroke="#1a0f2e" stroke-width="${Math.max(4, r * 0.35)}" stroke-linecap="round"/>`
@@ -350,7 +364,7 @@ function monSvg(m, opt = {}) {
   const tone = k ? ` style="filter:saturate(${(1 - 0.5 * k).toFixed(2)}) brightness(${(1 - 0.22 * k).toFixed(2)})"` : "";
   return `<svg viewBox="-10 -10 220 220" role="img" aria-label="${m.name}" data-dmg="${k.toFixed(2)}" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="${id}" cx="40%" cy="32%" r="75%"><stop offset="0" stop-color="${shade(c, 0.45)}"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${shade(c, -0.55)}"/></radialGradient><radialGradient id="${id}a"><stop offset="0" stop-color="${c}" stop-opacity="${(0.55 * (1 - 0.6 * k)).toFixed(2)}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>${mask}</defs>
     ${opt.flat ? "" : `<ellipse cx="100" cy="196" rx="58" ry="9" fill="#000" opacity=".35"/><circle cx="100" cy="110" r="108" fill="url(#${id}a)"/>`}
-    <g class="${opt.flat ? "" : k >= 0.6 ? "bob weak" : "bob"}"><g${pose}><g${tone}><g class="body"${nb ? ` mask="url(#${id}m)"` : ""}>${horns}<path d="${body}" fill="url(#${id})" stroke="${shade(c, -0.6)}" stroke-width="3"/>${cracks}</g>${crown}${ey}${mouth}</g></g></g>${smoke}</svg>`;
+    <g class="${opt.flat ? "" : k >= 0.6 ? "bob weak" : "bob"}"><g${pose}><g${tone}><g class="body"${nb ? ` mask="url(#${id}m)"` : ""}>${wings}${tail}${horns}<path d="${body}" fill="url(#${id})" stroke="${shade(c, -0.6)}" stroke-width="3"/>${cracks}</g>${crown}${ey}${mouth}</g></g></g>${smoke}</svg>`;
 }
 const swordSvg = (lv) => `<svg viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="sw${lv}" x1="0" x2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="${["#9aa3b5", "#b8d8ff", "#9ff0c8", "#ffe39a", "#ffb3ff"][lv]}"/></linearGradient></defs><path d="M30 4L36 4L36 10L16 30L10 24Z" fill="url(#sw${lv})" stroke="#2a2238" stroke-width="1.2"/><path d="M8 20L20 32L17 35L5 23Z" fill="#e6b84c" stroke="#7a5410"/><path d="M9 29L4 34L6 36L11 31Z" fill="#7a4b2a"/></svg>`;
 const starStr = (s) => `<span class="stars" aria-label="星${s}つ">${"★".repeat(s)}<span class="off">${"★".repeat(3 - s)}</span></span>`;
@@ -382,6 +396,8 @@ function sfx(name) {
     else if (name === "ken") { [523, 659, 784, 1047].forEach((f, i) => osc(f, i * 0.06, 0.7, "sine", 0.35)); } // 光：上がる和音
     else if (name === "rou") { [[880, 0], [660, 0.32]].forEach(([f, at]) => { osc(f, at, 1.1, "sine", 0.6); osc(f * 2.76, at, 0.45, "sine", 0.18); osc(f * 5.4, at, 0.2, "sine", 0.08); }); } // 鐘：ごーん
     else if (name === "sho") { noise(0, 0.12, 1400, 0.7); osc(330, 0.1, 0.14, "square", 0.25, 220); osc(880, 0.16, 0.3, "sine", 0.4); } // 札：ぺたり
+    else if (name === "pen") { noise(0, 0.22, 900, 0.8, 2500); osc(260, 0.18, 0.2, "triangle", 0.4, 520); } // 筆：さっと払う
+    else if (name === "sig") { [[880, 0], [880, 0.22], [1320, 0.44]].forEach(([f, at]) => osc(f, at, 0.14, "square", 0.22)); } // 信号：ピッ・ピッ・ピーン
     else if (name === "miss") { osc(180, 0, 0.32, "sawtooth", 0.5, 55); noise(0, 0.22, 380, 0.9); } // 反撃
     else if (name === "win") { [523, 659, 784, 1047, 1319].forEach((f, i) => osc(f, i * 0.08, 0.35, "triangle", 0.4)); }
     else if (name === "lost") { [392, 330, 262].forEach((f, i) => osc(f, i * 0.16, 0.3, "triangle", 0.35)); }
@@ -498,13 +514,15 @@ function play(fx) {
   if (fx) effect(fx, $("mon"), q.a, c.combo || 0, c.rg);
   if (a && fx) later(250, () => { const l = $("law"); if (l && l.scrollIntoView) l.scrollIntoView({ block: "nearest", behavior: "smooth" }); });
 }
-// 攻撃の技は条文の法律で変わる。刑法＝刃・民法＝鎖・憲法＝光の柱・労働基準法＝鐘の波・消費者の法律＝封じの札
-const ARTS = { 刑法: ["kei", "断罪の刃"], 民法: ["min", "契約の鎖"], 憲法: ["ken", "憲章の光"], 労働基準法: ["rou", "定時の鐘"], 特定商取引法: ["sho", "守りの札"], 消費者契約法: ["sho", "守りの札"] };
+// 攻撃の技は条文の法律で変わる。刑法＝刃・民法と借地借家法＝鎖・憲法＝光の柱・労働基準法＝鐘の波・消費者と個人情報の法律＝封じの札・著作権法＝筆・道路交通法＝信号の光
+const ARTS = { 刑法: ["kei", "断罪の刃"], 民法: ["min", "契約の鎖"], 憲法: ["ken", "憲章の光"], 労働基準法: ["rou", "定時の鐘"], 特定商取引法: ["sho", "守りの札"], 消費者契約法: ["sho", "守りの札"], 個人情報保護法: ["sho", "守りの札"], 借地借家法: ["min", "契約の鎖"], 著作権法: ["pen", "創作の筆"], 道路交通法: ["sig", "信号の光"] };
 function artHtml(kind) {
   if (kind === "kei") return `<div class="slash"></div><div class="slash s2"></div>`;
   if (kind === "min") return `<div class="chain"></div><div class="chain c2"></div>`;
   if (kind === "ken") return `<div class="pillar"></div>`;
   if (kind === "rou") return `<div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>`;
+  if (kind === "pen") return `<div class="ink"></div><div class="ink i2"></div>`;
+  if (kind === "sig") return `<div class="sig"><i></i><i></i><i></i></div>`;
   return `<div class="charm">封</div>`;
 }
 function effect(kind, el, law, combo, rg) {

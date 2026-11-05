@@ -16,6 +16,10 @@
 | 似たものを混ぜて練習すると、見分ける力が育つ（交互練習。Rohrer & Taylor 2007、Brunmair & Richter 2019） | 1体のカードは同じ分野のまぎらわしい条文（窃盗・詐欺・横領・恐喝…）。上級は分野をまぜる |
 | 間をあけて解き直すと長く覚えている（分散学習。Cepeda ほか 2006） | 外した問題を「おさらい」に残し、後で解き直す。毎日ちがう5体 |
 | 挑戦がうまさに合うと没頭しやすい（フロー。Csikszentmihalyi） | 体力3・盾3（2回まで外してよい）・見抜く1回。上級は体力5・カード4枚・ヒントなし |
+| 思い出す向きを変える（答え→手がかり）練習も、テスト効果が出る（Roediger & Karpicke 2006） | 条文帳の「思い出す」：条文の文を見て名前を当てる。久しく出していない条文から（分散学習） |
+| ブラウザは、人が押す前に音を鳴らすことを止める（MDN「Autoplay guide for media and Web Audio APIs」） | 効果音は押したときだけ Web Audio で作って鳴らす。切り替えられる |
+
+2026-11-05 の追加（satouさんの声から）：1日5体と「連戦」（遊べる量が少ない）、練習は出会った魔物だけ（図鑑の楽しみを先に見せない）、魔物24体（種類を増やす）、真の姿・今週の大魔の技（同じ遊びに変化をつけ、有能感の次の目標を置く）。
 
 似たアプリ：行政書士試験向けの「法令択一クエスト」（RPG 風の四択問題集）。こちらは条文を当てること自体を攻撃にし、魔物ごとの分野・図鑑・条文帳で差をつける。
 
@@ -32,4 +36,5 @@ satouさんの好み（文字少なめ・一画面一問・時間制限なし・
 - Shute, V. J. (2008). Focus on formative feedback. Review of Educational Research.
 - Rohrer, D. & Taylor, K. (2007). The shuffling of mathematics problems improves learning. Instructional Science. / Brunmair, M. & Richter, T. (2019). Similarity matters: A meta-analysis of interleaved learning. Psychological Bulletin.
 - Cepeda, N. J. ほか (2006). Distributed practice in verbal recall tasks: A review and quantitative synthesis. Psychological Bulletin.
+- MDN Web Docs: Autoplay guide for media and Web Audio APIs. https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay
 - 条文：e-Gov 法令検索 https://laws.e-gov.go.jp/ （2026-11-05 時点。tools/check-laws.py で本文と照らし合わせる）

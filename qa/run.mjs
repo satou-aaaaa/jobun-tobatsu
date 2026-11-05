@@ -87,6 +87,8 @@ const L = D.LAWS, M = D.MONSTERS, len = (t) => [...t].length;
 
 const html = readFileSync(path.join(root, "index.html"), "utf8"), bjs = readFileSync(path.join(root, "battle.js"), "utf8");
 const code = (t) => t.replace(/^\s*\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
+const ARTK = { 刑法: "kei", 民法: "min", 憲法: "ken", 労働基準法: "rou", 特定商取引法: "sho", 消費者契約法: "sho", 個人情報保護法: "sho", 借地借家法: "min", 著作権法: "pen", 道路交通法: "sig" };
+check("どの法律にも攻撃の技がある（新しい法律を足したら ARTS にも足す）", [...new Set(Object.values(L).map((x) => x.law))].every((law) => html.includes(law + ": [\"") && ARTK[law]), [...new Set(Object.values(L).map((x) => x.law))].filter((law) => !html.includes(law + ": [\"")).join(","));
 check("Math.random は練習の種だけ（今日の3体・上級・カードは日付の種）", (code(html).match(/Math\.random/g) || []).length === 2 && !/Math\.random/.test(code(bjs)) && /review[^\n]*Math\.random[^\n]*\n[^\n]*practicePlan\(Math\.floor\(Math\.random/.test(html));
 { const src = html + bjs; const bad = src.match(/\.sort\(\s*\([^)]*\)\s*=>[^\n;]*\b(R|rng|rand|Math\.random)\s*\(/g) || [];
   check("並べ替えの比較の中で乱数を引いていない（同じ日に人によって問題が変わらない）", bad.length === 0, bad.join(" | ")); }
@@ -125,7 +127,6 @@ async function newCtx(time = DAY0) {
   return { ctx, open };
 }
 const st = (p) => p.evaluate(() => JSON.parse(localStorage.getItem("tobatsu-v1") || "null"));
-const ARTK = { 刑法: "kei", 民法: "min", 憲法: "ken", 労働基準法: "rou", 特定商取引法: "sho", 消費者契約法: "sho" };
 const qByDeed = (t) => { for (const m of M) for (const q of m.qs) if (q.s === t) return q; return null; };
 async function deed(p) { return (await p.textContent("#deed")).trim(); }
 // 1問答える。ok=true で正しいカード、false でまちがいのカード
@@ -304,7 +305,7 @@ for (const [day, art] of [["2026-11-12", "guard"], ["2026-11-19", "text"]]) {
   await p.reload(); await p.click("#go-h");
   if (art === "guard") check("今週の技「盾くだき」：盾が2つから", (await p.$$(".shield span")).length === 2 && (await p.textContent(".wart")).includes("盾くだき"));
   else { const nm = await p.$$eval(".card .nm", (es) => es.map((e) => e.textContent)); const ids = await p.$$eval(".card", (es) => es.map((e) => e.dataset.id));
-    check("今週の技「名隠し」：札に条文の名前が出ず、書き出しだけ（答えたあとは名前を出す）", ids.every((id, i) => !nm[i].includes(L[id].name) || L[id].text.startsWith(L[id].name)) && (await p.$$(".card .nm.tx")).length === 4);
+    check("今週の技「名隠し」：札に条文の名前が出ず、書き出しだけ（答えたあとは名前を出す）", ids.every((id, i) => { const t = L[id].text.split("…")[0]; return nm[i] === (t.length > 26 ? t.slice(0, 26) + "…" : t) && nm[i] !== L[id].name; }) && (await p.$$(".card .nm.tx")).length === 4);
     await answer(p, true); check("名隠し：答えたあとは名前を出す", (await p.$$(".card .nm.tx")).length === 0); }
   await ctx.close();
 }
