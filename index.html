@@ -456,8 +456,8 @@ function parse(j) { try { const o = JSON.parse(j); return o && o.v === 1 ? o : n
 // 読むときは足りない入れ物を fresh() で補う（古い記録・知らない入れ物を消さない）。保存に失敗したあとはメモリの方が新しい
 function load() { let b = null; try { b = parse(localStorage.getItem(KEY)); } catch (e) {} const a = mem !== null ? parse(mem) : null; const s = Object.assign(fresh(), (a && (!b || (a.t || 0) >= (b.t || 0)) ? a : b) || {}); for (const k of ["days", "hdays", "pdays", "dex", "laws", "runs", "kofi", "ach", "seen", "rc"]) if (!s[k] || typeof s[k] !== "object") s[k] = {}; if (!Array.isArray(s.miss)) s.miss = []; return s; }
 // 保存の前に読み直す（別のタブで進めた記録を消さない）
-let saveWarned = false; // 保存に失敗したら、遊んでいる途中でも1回知らせる（黙って記録が消えないように）
-function save(fn) { const s = load(); fn(s); s.t = Math.max(Date.now(), (s.t || 0) + 1); const j = JSON.stringify(s); try { localStorage.setItem(KEY, j); mem = null; saveWarned = false; } catch (e) { mem = j; if (!saveWarned) { saveWarned = true; setTimeout(() => toast("この端末に記録を保存できませんでした。ページを開き直すと、いまの記録が消えます"), 0); } } return s; }
+function saveWarn(on) { let b = document.getElementById("savewarn"); if (!on) { if (b) b.remove(); return; } if (b) return; b = document.createElement("div"); b.id = "savewarn"; b.setAttribute("role", "status"); b.textContent = "この端末に記録を保存できませんでした。ページを開き直すと、いまの記録が消えます"; b.style.cssText = "position:fixed;left:0;right:0;top:0;z-index:9999;padding:8px 12px;background:#fff3cd;color:#000;font-size:15px;line-height:1.5;text-align:center;pointer-events:none;border-bottom:2px solid #8a6d00"; (document.body || document.documentElement).appendChild(b); } // 保存できないあいだは帯を出したままにし、保存できたら消す（黙って記録が消えないように）
+function save(fn) { const s = load(); fn(s); s.t = Math.max(Date.now(), (s.t || 0) + 1); const j = JSON.stringify(s); try { localStorage.setItem(KEY, j); mem = null; saveWarn(false); } catch (e) { mem = j; saveWarn(true); } return s; }
 const bookOf = (s, m) => (m === "d" ? s.days : m === "h" ? s.hdays : m === "a" ? s.pdays : null);
 const runKey = (mode, date) => (mode === "a" ? "a:" + date : mode);
 const isDone = (r) => !!r && (!!r.over || r.res.length >= r.plan.length); // over：連戦で盾が尽きた
