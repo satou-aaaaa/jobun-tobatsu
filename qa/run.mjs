@@ -143,7 +143,9 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
   const { ctx, open } = await newCtx();
   const p = await open();
   check("初めて開くと遊び方が出る", await p.isVisible("#howto"));
-  await p.click("#howto-ok");
+  await p.keyboard.press("Escape"); await p.waitForTimeout(100); check("遊び方を Esc で閉じられる", await p.locator("#howto[open]").count() === 0);
+  await p.reload(); await p.waitForTimeout(200); check("遊び方を Esc で閉じても、開き直したとき出ない", await p.locator("#howto[open]").count() === 0);
+  await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(200); await p.click("#howto-ok"); await p.reload(); await p.waitForTimeout(200); check("遊び方を「わかった」で閉じてすぐ読み直しても出ない", await p.locator("#howto[open]").count() === 0);
   check("ホーム：今日の5体の影が出て、名前はまだ伏せる", (await p.$$(".trio.shade svg")).length === 5 && (await p.textContent(".trio")).includes("？？？"));
   check("ホーム：まだ魔物に出会っていないので連戦は閉じている", await p.$eval("#go-e", (e) => e.disabled));
   check("ホーム：押せる所は高さ44px以上", (await smallTaps(p)).length === 0, (await smallTaps(p)).join(","));
