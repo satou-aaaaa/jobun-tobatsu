@@ -156,7 +156,15 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
     check("ホームの題は縦長の画面でも縦に伸びない（820×1180・390×844・1280×800）", big.length === 0, big.join(" ")); await c.close(); }
   await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(200); check("「わかった」を押したその場で「見た」が残る", await p.locator("#howto-ok").evaluate((b) => { b.click(); return Object.keys(localStorage).some((k) => { try { return JSON.parse(localStorage.getItem(k)).tut === true; } catch { return false; } }); }));
   check("ホーム：今日の5体の影が出て、名前はまだ伏せる", (await p.$$(".trio.shade svg")).length === 5 && (await p.textContent(".trio")).includes("？？？"));
-  check("ホーム：まだ魔物に出会っていないので連戦は閉じている", await p.$eval("#go-e", (e) => e.disabled));
+  check("ホーム：まだ魔物に出会っていなくても連戦は最初から押せる（鍵なし・「開く」の説明なし）", !(await p.$eval("#go-e", (e) => e.disabled)) && !(await p.textContent("#go-e")).includes("開く"));
+  { // 最初の日（出会った魔物なし）に連戦を押すと、今日の5体から1体と戦える・討伐すると出会った魔物に入る（前は今日の5体に出会うまで閉じていた）
+    const { ctx: c0, open: open0 } = await newCtx(); const q = await open0(); if (await q.locator("#howto[open]").count()) await q.click("#howto-ok");
+    await q.click("#go-e"); const first = (await q.$eval(".mname", (e) => e.firstChild.textContent)).trim();
+    const todayIx = G.dailyMons("2026-11-05"), shown = (await q.$$(".card")).length === 3 && todayIx.some((i) => M[i].name === first);
+    const won = await beat(q), sv = await st(q);
+    check("連戦：最初の日（出会った魔物なし）でも押せて、今日の5体から1体と戦え、討伐するとその魔物が出会った魔物に入る", shown && won && !!sv.runs.e && sv.runs.e.plan.length === 60 && sv.runs.e.plan.every((b) => todayIx.includes(b.m)) && !!sv.seen[(M.find((m) => m.name === first) || {}).id], `${first} won=${won}`);
+    await c0.close();
+  }
   check("ホーム：押せる所は高さ44px以上", (await smallTaps(p)).length === 0, (await smallTaps(p)).join(","));
   await p.click("#go-d");
   check("戦い：魔物・体力3・事件・カード3枚・盾3・見抜く", (await p.$$(".hpbar i")).length === 3 && (await p.$$(".card")).length === 3 && (await p.$$(".shield span")).length === 3 && !!(await p.$("#hint")));
@@ -191,7 +199,7 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
   check("新しく取れた実績を知らせる", (await p.textContent(".ach-new")).includes("初めての討伐"));
   check("結果の画面：はみ出さない・押せる所は44px以上", (await noOverflow(p)) && (await smallTaps(p)).length === 0, (await smallTaps(p)).join(","));
   await p.click("#home");
-  check("ホーム：連戦が開く（今日の5体に出会った）", !(await p.$eval("#go-e", (e) => e.disabled)));
+  check("ホーム：今日の5体のあとも連戦を押せる", !(await p.$eval("#go-e", (e) => e.disabled)));
   check("ホーム：今日は結果を見るボタンになり、5体の名前が出て、上級が開く", (await p.textContent("#go-d")).includes("結果") && !(await p.$(".trio.shade")) && !!(await p.$("#go-h")));
   await p.click("#go-d");
   check("もう一度押しても結果を見るだけ（1日1回）", !!(await p.$(".minis")) && !(await p.$(".card")));
@@ -446,12 +454,25 @@ for (const [day, art] of [["2026-11-12", "guard"], ["2026-11-19", "text"]]) {
 // 引き継ぎコード（別の端末へ記録を移す。shared-workflows template/transfer.js）
 await checkTransfer({ browser, url, game: "jobun-tobatsu", sample: { "tobatsu-v1": JSON.stringify({ v: 1, tut: true, days: { "2026-11-04": { st: [3, 2, 1, 3, 3] } }, dex: { kasume: { w: 2, b: 3 } }, laws: { k235: 2 }, xp: 2, seen: { kasume: 1 } }), "tobatsu-v1-snd": "0" }, check, open: async (p) => { await p.evaluate(() => { const d = document.getElementById("howto"); if (d && d.open) document.getElementById("howto-ok").click(); }); } });
 check("ページのエラーが出ない", errors.length === 0, errors.slice(0, 3).join(" / "));
+// 思い出すは条文が1つでも遊べる（鍵にしない。satou さん 2026-11-06「好きなだけ遊んでほしい」）。足りない選び肢は、まだの条文から足す
+{ const pr = await browser.newPage(); await pr.addInitScript(() => { if (!localStorage.getItem("tobatsu-v1")) localStorage.setItem("tobatsu-v1", JSON.stringify({ v: 1, tut: true, days: {}, dex: {}, laws: { k235: 1 }, seen: {} })); }); await pr.goto(url); await pr.waitForTimeout(200);
+  await pr.click("#go-book");
+  const rb = await pr.$eval("#recall", (e) => ({ dis: e.disabled, t: e.textContent }));
+  check("思い出す：条文が1つでも押せる（「開く」の説明なし）", !rb.dis && !rb.t.includes("開く"), JSON.stringify(rb));
+  await pr.click("#recall");
+  const rs = await pr.$$eval("[data-r]", (es) => es.map((e) => e.dataset.r));
+  check("思い出す：条文が1つのときも選び肢は3つで、答えの条文が入り、ほかはまだの条文から", rs.length === 3 && rs.includes("k235") && new Set(rs).size === 3, rs.join(","));
+  await pr.close(); }
 // 保存に失敗したら知らせる（2026-11-07 暑さ指数よみで見つけた。黙って記録が消えないように）
 { const ps = await browser.newPage(); await ps.goto(url); await ps.waitForTimeout(200);
   check("保存に失敗したら、保存できるまで知らせ続け、保存できたら消す", await ps.evaluate(async () => { const orig = Storage.prototype.setItem; Storage.prototype.setItem = function () { throw new Error("full"); }; save(() => {}); save(() => {}); const one = document.querySelectorAll("#savewarn").length === 1 && document.getElementById("savewarn").textContent.includes("保存できませんでした"); await new Promise((r) => setTimeout(r, 2500)); const stay = !!document.getElementById("savewarn"); Storage.prototype.setItem = orig; save(() => {}); return one && stay && !document.getElementById("savewarn"); }));
   check("保存できない帯は画面のいちばん上に場所を取り（ボタンに重ならない）、読み上げの知らせにも出し、ほかの知らせのあとも警告が残る・保存できたら帯と警告が消え、ほかの知らせは残る", await ps.evaluate(async () => { const W = "保存できませんでした", tick = () => new Promise((r) => setTimeout(r, 50)); const orig = Storage.prototype.setItem; Storage.prototype.setItem = function () { throw new Error("full"); }; save(() => {}); const b = document.getElementById("savewarn"); const top = !!b && document.body.firstElementChild === b && getComputedStyle(b).position === "sticky"; const l = document.getElementById("live"); let live = true, kept = true, other = true; if (l) { live = l.textContent.includes(W); l.textContent = ""; await tick(); l.textContent = "べつの知らせ"; await tick(); kept = l.textContent.includes("べつの知らせ") && l.textContent.includes(W); } Storage.prototype.setItem = orig; save(() => {}); await tick(); if (l) other = l.textContent === "べつの知らせ"; return top && live && kept && other && !document.getElementById("savewarn"); }));
   check("保存できない帯は、長い画面を下までスクロールしても画面の上に見えている（body の高さで止まらない）", await ps.evaluate(async () => { const orig = Storage.prototype.setItem; Storage.prototype.setItem = function () { throw new Error("full"); }; save(() => {}); const pad = document.createElement("div"); pad.style.height = "3000px"; document.body.appendChild(pad); scrollTo(0, document.documentElement.scrollHeight); await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); const b = document.getElementById("savewarn"), r = b && b.getBoundingClientRect(); const ok = !!r && scrollY > 1000 && r.top >= -1 && r.top < 5; pad.remove(); scrollTo(0, 0); Storage.prototype.setItem = orig; save(() => {}); return ok && !document.getElementById("savewarn"); }));
   await ps.close(); }
+{ // 知らせ（.toast）は下のボタンを塞がない（shared-workflows incidents/2026-11-17-known-game-bugs-spread.md）
+  const pt = await browser.newPage(); await pt.goto(url);
+  check("知らせ（.toast）が出ていても、その下のボタンを押せる（pointer-events:none）", await pt.evaluate(() => { const d = document.createElement("div"); d.className = "toast"; document.body.appendChild(d); const v = getComputedStyle(d).pointerEvents; d.remove(); return v === "none"; }));
+  await pt.close(); }
 await browser.close();
 
 { // 見やすさ・読みやすさ・偏り（shared-workflows template/qa/a11y.mjs の写し。routines/game-dev.md「だれでも遊べるように」）
