@@ -477,7 +477,7 @@ const bookOf = (s, m) => (m === "d" ? s.days : m === "h" ? s.hdays : m === "a" ?
 const runKey = (mode, date) => (mode === "a" ? "a:" + date : mode);
 // 問題の鍵「魔物の番号:問題の番号」。この鍵だけで同じ事件・同じ答えを作り直せる（復習・おさらい・自信で使う）
 const keyOf = (b, p) => (b.m === -1 || b.m === -2 ? b.order[p].join(":") : b.m + ":" + b.order[p]);
-const qOfKey = (k) => { const x = /^(\d+):(\d+)$/.exec(String(k)); const m = x && MON[+x[1]]; const q = m && Object.prototype.hasOwnProperty.call(m.qs, x[2]) ? m.qs[+x[2]] : null; return q && Array.isArray(q.x) && q.x.length >= 2 ? q : null; };
+const qOfKey = (k) => { const x = /^(\d+):(\d+)$/.exec(String(k)); if (x && `${+x[1]}:${+x[2]}` !== String(k)) return null; const m = x && MON[+x[1]]; const q = m && Object.prototype.hasOwnProperty.call(m.qs, x[2]) ? m.qs[+x[2]] : null; return q && Array.isArray(q.x) && q.x.length >= 2 ? q : null; };
 Depth.setValid((k) => !!qOfKey(k)); // 作り直せない鍵（引き継ぎ・消えた問題）は復習に数えない
 const isDone = (r) => !!r && (!!r.over || r.res.length >= r.plan.length); // over：連戦で盾が尽きた
 const dexN = (s, v) => MON.filter((m) => (s.dex[m.id + (v ? "*" : "")] || {}).w > 0).length; // 図鑑に載った魔物の数（v：真の姿）
