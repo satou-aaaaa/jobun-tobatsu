@@ -208,7 +208,7 @@ dialog h2{font-family:var(--f-head);margin:0 0 10px;letter-spacing:.08em}
 dialog ol{padding-left:1.3em;margin:0 0 12px;line-height:1.8}
 dialog p{margin:0 0 10px;font-size:13px;line-height:1.7;color:var(--ink2)}
 dialog a{color:var(--gold);min-height:44px;display:inline-flex;align-items:center}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;z-index:9;max-width:90%;text-align:center}
+.toast{pointer-events:none;position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;z-index:9;max-width:90%;text-align:center}
 /* 実績・カレンダー */
 .ach-new{background:#e6b84c22;color:#ffe9a6;border:1px solid #e6b84c66;border-radius:12px;padding:8px 10px;font-size:14px;font-weight:700;margin:0;text-align:center}
 .achs{display:flex;flex-direction:column;gap:8px}
@@ -869,21 +869,21 @@ function bookView() {
   LAWIDS.forEach((k) => (groups[LAWS[k].law] = groups[LAWS[k].law] || []).push(k));
   draw(`${back("条文帳", `当てた条文が載ります ${have}/${LAWIDS.length}`)}
     <div class="prog"><i style="width:${(have / LAWIDS.length) * 100}%"></i></div>
-    <button class="main alt" id="recall" ${have >= 3 ? "" : "disabled"}>💭 思い出す（条文の文から名前を当てる）${have >= 3 ? "" : "<small>3条集めると開く</small>"}</button>
+    <button class="main alt" id="recall" ${have ? "" : "disabled"}>💭 思い出す（条文の文から名前を当てる）${have ? "" : "<small>まだ条文帳がからっぽです</small>"}</button>
     <div class="book">${Object.entries(groups).map(([law, ks]) => `<h3>${law}</h3>${ks.map((k) => { const L = LAWS[k], n = s.laws[k] || 0; return n ? `<details><summary><small>${L.no}</small>${esc(L.name)}<em>${n}回</em></summary><p>${esc(L.cap ? "（" + L.cap + "）" : "")}「${esc(L.text)}」</p></details>` : `<details class="no"><summary><small>${L.no}</small>？？？</summary></details>`; }).join("")}`).join("")}</div>
     <p class="note">条文は <a href="https://laws.e-gov.go.jp/" target="_blank" rel="noopener">e-Gov 法令検索</a> の本文から一部を写しています（「…」は略）。</p>${footer()}`);
   document.querySelectorAll(".book details.no").forEach((d) => d.addEventListener("toggle", () => (d.open = false)));
   $("back").onclick = home; bindFooter();
-  if (have >= 3) $("recall").onclick = recallStart;
+  if (have) $("recall").onclick = recallStart;
 }
 // ---- 思い出す：集めた条文の文を見て、どの条文かを当てる（逆向きに思い出す練習。久しく出していない条文から先に＝間をあけて解き直す）----
 let RC = null;
 function recallStart() {
   const s = save((x) => { x.rcn = (x.rcn || 0) + 1; }), have = LAWIDS.filter((k) => s.laws[k]);
-  if (have.length < 3) return bookView();
+  if (!have.length) return bookView();
   const R = G.rng(G.seedOf(todayKey() + ":r:" + s.rcn));
   const list = G.shuffle(have, R).sort((a, b) => (s.rc[a] || 0) - (s.rc[b] || 0)).slice(0, 5); // 比べる中では乱数を引かない
-  RC = { list: list.map((k) => { const same = have.filter((x) => x !== k && LAWS[x].law === LAWS[k].law), other = have.filter((x) => x !== k && LAWS[x].law !== LAWS[k].law); const wrong = [...G.shuffle(same, R), ...G.shuffle(other, R)].slice(0, 2); return { k, opts: G.shuffle([k, ...wrong], R) }; }), i: 0, ok: 0, ans: null };
+  RC = { list: list.map((k) => { const same = have.filter((x) => x !== k && LAWS[x].law === LAWS[k].law), other = have.filter((x) => x !== k && LAWS[x].law !== LAWS[k].law); const rest = LAWIDS.filter((x) => x !== k && !have.includes(x)), wrong = [...G.shuffle(same, R), ...G.shuffle(other, R), ...G.shuffle(rest, R)].slice(0, 2); return { k, opts: G.shuffle([k, ...wrong], R) }; }), i: 0, ok: 0, ans: null };
   recallView();
 }
 function recallView() {
@@ -896,7 +896,7 @@ function recallView() {
   const { k, opts } = RC.list[RC.i], L = LAWS[k], a = RC.ans;
   draw(`${back(`思い出す ${RC.i + 1}/${RC.list.length}`, "記録には入りません")}
     <div class="deed recall" id="rtext" data-a11y-say>「${esc(L.text)}」</div>
-    ${a ? "" : `<p class="ask">これはどの条文？<small>条文帳に集めた条文から</small></p>`}
+    ${a ? "" : `<p class="ask">これはどの条文？<small>答えは条文帳に集めた条文</small></p>`}
     <div class="cards${a ? " done" : ""}">${opts.map((id) => { const x = LAWS[id]; return `<button class="card${a && id === k ? " right" : ""}${a && id === a && a !== k ? " wrong" : ""}" data-r="${id}" ${a ? "disabled" : ""} aria-label="${x.law}${x.no} ${x.name}${cardSt(a && id === k, a && id === a && a !== k)}"><span class="no">${x.law}<b>${x.no}</b></span><span class="nm">${esc(x.name)}</span>${cardMk(a && id === k, a && id === a && a !== k)}</button>`; }).join("")}</div>
     ${a ? `<div class="law${a === k ? "" : " ng"}" id="law"><div class="hd" data-a11y-say><b>${a === k ? "✓ 正解" : "✕ ちがう"}</b>${L.law}${L.no}（${esc(L.cap || L.name)}）</div><button class="main" id="next">${RC.i + 1 < RC.list.length ? "次へ" : "おわり"}</button></div>` : ""}${footer()}`);
   $("back").onclick = () => { RC = null; bookView(); };
