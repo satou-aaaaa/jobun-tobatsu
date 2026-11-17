@@ -156,7 +156,15 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
     check("ホームの題は縦長の画面でも縦に伸びない（820×1180・390×844・1280×800）", big.length === 0, big.join(" ")); await c.close(); }
   await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(200); check("「わかった」を押したその場で「見た」が残る", await p.locator("#howto-ok").evaluate((b) => { b.click(); return Object.keys(localStorage).some((k) => { try { return JSON.parse(localStorage.getItem(k)).tut === true; } catch { return false; } }); }));
   check("ホーム：今日の5体の影が出て、名前はまだ伏せる", (await p.$$(".trio.shade svg")).length === 5 && (await p.textContent(".trio")).includes("？？？"));
-  check("ホーム：まだ魔物に出会っていないので連戦は閉じている", await p.$eval("#go-e", (e) => e.disabled));
+  check("ホーム：まだ魔物に出会っていなくても連戦は最初から押せる（鍵なし・「開く」の説明なし）", !(await p.$eval("#go-e", (e) => e.disabled)) && !(await p.textContent("#go-e")).includes("開く"));
+  { // 最初の日（出会った魔物なし）に連戦を押すと、今日の5体から1体と戦える・討伐すると出会った魔物に入る（前は今日の5体に出会うまで閉じていた）
+    const { ctx: c0, open: open0 } = await newCtx(); const q = await open0(); if (await q.locator("#howto[open]").count()) await q.click("#howto-ok");
+    await q.click("#go-e"); const first = (await q.$eval(".mname", (e) => e.firstChild.textContent)).trim();
+    const todayIx = G.dailyMons("2026-11-05"), shown = (await q.$$(".card")).length === 3 && todayIx.some((i) => M[i].name === first);
+    const won = await beat(q), sv = await st(q);
+    check("連戦：最初の日（出会った魔物なし）でも押せて、今日の5体から1体と戦え、討伐するとその魔物が出会った魔物に入る", shown && won && !!sv.runs.e && sv.runs.e.plan.length === 60 && sv.runs.e.plan.every((b) => todayIx.includes(b.m)) && !!sv.seen[(M.find((m) => m.name === first) || {}).id], `${first} won=${won}`);
+    await c0.close();
+  }
   check("ホーム：押せる所は高さ44px以上", (await smallTaps(p)).length === 0, (await smallTaps(p)).join(","));
   await p.click("#go-d");
   check("戦い：魔物・体力3・事件・カード3枚・盾3・見抜く", (await p.$$(".hpbar i")).length === 3 && (await p.$$(".card")).length === 3 && (await p.$$(".shield span")).length === 3 && !!(await p.$("#hint")));
@@ -191,7 +199,7 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
   check("新しく取れた実績を知らせる", (await p.textContent(".ach-new")).includes("初めての討伐"));
   check("結果の画面：はみ出さない・押せる所は44px以上", (await noOverflow(p)) && (await smallTaps(p)).length === 0, (await smallTaps(p)).join(","));
   await p.click("#home");
-  check("ホーム：連戦が開く（今日の5体に出会った）", !(await p.$eval("#go-e", (e) => e.disabled)));
+  check("ホーム：今日の5体のあとも連戦を押せる", !(await p.$eval("#go-e", (e) => e.disabled)));
   check("ホーム：今日は結果を見るボタンになり、5体の名前が出て、上級が開く", (await p.textContent("#go-d")).includes("結果") && !(await p.$(".trio.shade")) && !!(await p.$("#go-h")));
   await p.click("#go-d");
   check("もう一度押しても結果を見るだけ（1日1回）", !!(await p.$(".minis")) && !(await p.$(".card")));

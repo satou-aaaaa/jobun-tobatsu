@@ -424,7 +424,7 @@ html.a11y-say body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))!i
     <li>その悪事に当てはまる条文のカードを選んで斬ります。</li>
     <li>当たれば魔物の体力が1つ減り、外れると反撃で盾が1つ減ります。3回斬れば討伐、盾が尽きると逃げられます。</li>
   </ol>
-  <p>「見抜く」で、ちがうカードを1枚消せます（1体に1回・★が1つ減ります）。今日の5体はだれでも同じで1日1回。もっと戦いたいときは「連戦」（盾が尽きるまで何体でも）と「練習」（出会った魔物と）。時間制限はありません。</p>
+  <p>「見抜く」で、ちがうカードを1枚消せます（1体に1回・★が1つ減ります）。今日の5体はだれでも同じで1日1回。もっと戦いたいときは「連戦」（はじめての日から遊べます。盾が尽きるまで何体でも）と「練習」（出会った魔物と）。時間制限はありません。</p>
   <p>条文は e-Gov 法令検索の本文から写しています。遊びのための例で、法律相談ではありません。</p>
   <p><a id="fb2" target="_blank" rel="noopener">感想を送る</a>　<a href="#" data-a11y-open>見やすさの設定</a></p>
   <button class="main" id="howto-ok" style="width:100%">わかった</button>
@@ -451,7 +451,7 @@ const DAYRE = /^\d{4}-\d\d-\d\d$/;
 // days・hdays・pdays：日ごとの結果 { st:[★…] }（0 は逃げられた）。pdays は取りこぼした日をあとから（連続・今日の記録・Ko-fi には数えない）
 // dex：魔物 → { w:討伐数, b:いちばん多い★ }。laws：条文 → 当てた回数。miss：外した問題 "魔物:問題"（おさらい用・新しい順に12まで）
 // runs：遊んでいる途中の回をモードごとに（d・h・p・e・a:日付）。ach：結果で知らせ終えた実績。kofi：Ko-fi の1行を出した回
-// seen：出会った魔物（練習・連戦で選べるのはここだけ。図鑑の楽しみを先に見せない）。ebest・en：連戦の最高と回数。rc・rcn・rcok：条文帳の「思い出す」（最後に出した日・回数・当てた数）
+// seen：出会った魔物（練習で選べるのはここだけ。図鑑の楽しみを先に見せない。連戦も出会った魔物から出し、5体に足りないときだけまだの魔物を足す）。ebest・en：連戦の最高と回数。rc・rcn・rcok：条文帳の「思い出す」（最後に出した日・回数・当てた数）
 const fresh = () => ({ v: 1, days: {}, hdays: {}, pdays: {}, dex: {}, laws: {}, xp: 0, miss: [], runs: {}, tut: false, kofi: {}, ach: {}, seen: {}, rc: {}, ebest: 0, en: 0, rcn: 0, rcok: 0, t: 0 });
 let mem = null; // 保存できない環境では、開いているあいだだけここに置く
 function parse(j) { try { const o = JSON.parse(j); return o && o.v === 1 ? o : null; } catch (e) { return null; } }
@@ -465,6 +465,8 @@ const runKey = (mode, date) => (mode === "a" ? "a:" + date : mode);
 const isDone = (r) => !!r && (!!r.over || r.res.length >= r.plan.length); // over：連戦で盾が尽きた
 const dexN = (s, v) => MON.filter((m) => (s.dex[m.id + (v ? "*" : "")] || {}).w > 0).length; // 図鑑に載った魔物の数（v：真の姿）
 const seenIx = (s) => MON.map((m, i) => (s.seen[m.id] || (s.dex[m.id] || {}).w > 0 ? i : -1)).filter((i) => i >= 0);
+// 連戦に出す魔物：出会った魔物。足りない（今日の5体より少ない）ときは、まだ出会っていない魔物を今日の5体から順に足して5体にする（連戦は最初から遊べる。2026-11-06 satouさん「🔒で開くモードを入れない」）
+const endlessPool = (s, k) => { const a = seenIx(s); for (const m of [...G.dailyMons(k), ...MON.keys()]) { if (a.length >= G.DN) break; if (!a.includes(m)) a.push(m); } return a; };
 const VWIN = 3; // 真の姿は、その魔物を3回討伐すると練習で戦える
 const recs = (b) => Object.entries(b || {}).filter(([k, r]) => DAYRE.test(k) && r && Array.isArray(r.st)).map(([, r]) => r);
 function streak(days) { let k = todayKey(), n = 0; if (!days[k]) k = prevDay(k); while (days[k]) { n++; k = prevDay(k); } return n; }
@@ -600,7 +602,7 @@ function home() {
   for (const m of Object.keys(s.runs)) { const r = s.runs[m]; if (r && isDone(r)) { RK = m; return finish(); } } // 終えた回の結果をまだ見ていなければ、先に見せる
   const rd = s.runs.d && s.runs.d.date === k ? s.runs.d : null, rh = s.runs.h && s.runs.h.date === k ? s.runs.h : null;
   const trio = G.dailyMons(k).map((i) => MON[i]);
-  const ri = rankIx(s.xp), nr = nextRank(s.xp), miss = missedDays(s, k).length, nSeen = seenIx(s).length, re = s.runs.e && !isDone(s.runs.e) ? s.runs.e : null, art = WART[G.weekArt(k)];
+  const ri = rankIx(s.xp), nr = nextRank(s.xp), miss = missedDays(s, k).length, re = s.runs.e && !isDone(s.runs.e) ? s.runs.e : null, art = WART[G.weekArt(k)];
   draw(`${sndBtn("top")}
     <h1 class="title">条文討伐</h1>
     <p class="lead" data-a11y-say>悪事をはたらく魔物を、正しい条文で斬る。<br>だれでも同じ1日5体。</p>
@@ -608,7 +610,7 @@ function home() {
     ${done ? `<div class="share">今日の討伐　${done.st.map(mark).join("")}<small class="stline">${done.st.map((x) => (x ? "★" + x : "逃")).join("・")}</small></div>` : ""}
     <button class="main" id="go-d">${done ? "今日の結果を見る" : rd ? `続きから（${rd.res.length + 1}体目）` : `今日の5体を討伐する <small>#${dayNo(k)}</small>`}</button>
     ${done ? `<button class="main alt" id="go-h">${hdone ? "上級の結果を見る" : rh ? "上級の続きから" : `上級：無法大君 <small>今週の技「${art[0]}」</small>`}</button>` : ""}
-    <button class="sub" id="go-e" ${nSeen >= G.DN ? "" : "disabled"}>${nSeen >= G.DN ? `🔗 連戦${re ? `の続きから（${re.res.filter((x) => x.st).length}体討伐）` : s.ebest ? ` <small style="color:var(--gold)">最高${s.ebest}体</small>` : "：盾が尽きるまで何体でも"}` : "🔗 連戦（今日の5体に出会うと開く）"}</button>
+    <button class="sub" id="go-e">🔗 連戦${re ? `の続きから（${re.res.filter((x) => x.st).length}体討伐）` : s.ebest ? ` <small style="color:var(--gold)">最高${s.ebest}体</small>` : "：盾が尽きるまで何体でも"}</button>
     <div class="row"><button class="sub" id="go-p">練習${s.miss.length ? ` <small style="color:var(--gold)">おさらい${s.miss.length}</small>` : ""}</button><button class="sub" id="go-dex">魔物図鑑 ${dexN(s)}/${MON.length}</button></div>
     <div class="row"><button class="sub" id="go-book">条文帳 ${Object.keys(s.laws).filter((x) => LAWS[x]).length}/${LAWIDS.length}</button><button class="sub" id="go-ach">実績 ${achOf(s).filter((a) => a.got).length}/${ACH.length}</button></div>
     <button class="sub" id="go-cal">カレンダー${miss ? ` <small style="color:var(--gold)">あとから遊べる日 ${miss}</small>` : ""}</button>
@@ -639,7 +641,6 @@ function startRun(mode, opt) {
   const live = (s) => s.runs[rk] && (s.runs[rk].date === k || mode === "e") && !isDone(s.runs[rk]);
   if (mode === "a" && !live(load()) && !missedDays(load()).includes(k)) return calendar(); // 7日より前・遊んだ日・今日や未来は始めない
   if (opt === "review" && !load().miss.length) return practiceMenu(); // おさらいする問題が無い
-  if (mode === "e" && seenIx(load()).length < G.DN) return home(); // 連戦は出会った魔物だけ（今日の5体のあとで開く）
   if (mode === "p" && typeof opt === "number" && !seenIx(load()).includes(opt)) return practiceMenu(); // まだ出会っていない魔物とは練習しない
   if (mode === "p" && opt && opt.v && ((load().dex[MON[opt.m].id] || {}).w || 0) < VWIN) return practiceMenu();
   save((s) => {
@@ -648,7 +649,7 @@ function startRun(mode, opt) {
     let plan;
     if (mode === "d" || mode === "a") plan = G.dailyPlan(k);
     else if (mode === "h") plan = G.hardPlan(k);
-    else if (mode === "e") { plan = G.endlessPlan(G.seedOf(k + ":e:" + (s.en || 0)), seenIx(s)); s.en = (s.en || 0) + 1; }
+    else if (mode === "e") { plan = G.endlessPlan(G.seedOf(k + ":e:" + (s.en || 0)), endlessPool(s, k)); s.en = (s.en || 0) + 1; }
     else if (opt === "review") { const list = s.miss.slice(0, 5).map((x) => x.split(":").map(Number)).filter(([m, q]) => MON[m] && MON[m].qs[q]); plan = [{ m: -2, hp: list.length, seed: Math.floor(Math.random() * 2 ** 31), order: [...list, ...list, ...list] }]; }
     else plan = G.practicePlan(Math.floor(Math.random() * 2 ** 31), opt && opt.v ? opt.m : opt, opt && opt.v ? 1 : 0);
     s.runs[rk] = { mode, date: k, plan, res: [], cur: newCur(meOf(plan[0])), id: Date.now().toString(36) + "-" + (++SEQ).toString(36) };
