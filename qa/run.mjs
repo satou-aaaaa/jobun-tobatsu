@@ -8,6 +8,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
 import { checkTransfer } from "./transfer-check.mjs";
 import { checkSwStall } from "./sw-check.mjs";
+import { checkDepth } from "./depth-check.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const url = pathToFileURL(path.join(root, "index.html")).href;
@@ -112,8 +113,8 @@ check("README の URL のすぐ後ろに全角の字を続けない（Link check
 { const sw = readFileSync(path.join(root, "sw.js"), "utf8"), mf = JSON.parse(readFileSync(path.join(root, "manifest.webmanifest"), "utf8"));
   { const st = await checkSwStall(sw); check("PWA：本文の途中で通信が止まっても4秒で保存したものを返す・ふつうはネットの返事", st.ok, JSON.stringify(st)); }
   const shell = JSON.parse(sw.match(/SHELL = (\[[^\]]+\])/)[1]);
-  const need = ["./index.html", "./data.js", "./battle.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
-  check("PWA：sw.js は画面のファイルを全部保存し、外へ何も送らない", need.every((f) => shell.includes(f)) && !/https?:\/\//.test(sw.replace(/^\/\/.*$/gm, "")));
+  const need = ["./index.html", "./data.js", "./battle.js", "./transfer.js", "./depth.js", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
+  check("PWA：sw.js は画面のファイルを全部保存し（引き継ぎの transfer.js・深さの depth.js も）、外へ何も送らない", need.every((f) => shell.includes(f)) && !/https?:\/\//.test(sw.replace(/^\/\/.*$/gm, "")));
   check("PWA：manifest にアイコン2つと名前がある", mf.name === "条文討伐" && mf.icons.length >= 2 && mf.start_url === "./");
   const scripts = [...html.matchAll(/<script src="([^"]+)"/g)].map((m) => "./" + m[1]);
   check("PWA：画面が読むスクリプトは全部 SHELL に入っている", scripts.every((f) => shell.includes(f)), scripts.join(",")); }
@@ -231,7 +232,7 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
   await p.click("#bk"); await p.click("#back"); await p.click("#go-dex");
   check("図鑑：討伐した6体（大魔を入れて）は名前が出る・真の姿はまだ伏せる", (await p.$$(".dex > div:not(.no)")).length === 6 && (await p.textContent(".sec")).includes("真の姿 0/"));
   await p.click("#back"); await p.click("#go-ach");
-  check(`実績は16個・いま/目標を出す`, (await p.$$(".ach")).length === 16 && (await p.textContent(".achs")).includes("/"));
+  check(`実績は18個・いま/目標を出す`, (await p.$$(".ach")).length === 18 && (await p.textContent(".achs")).includes("/"));
   await p.setViewportSize({ width: 320, height: 640 });
   check("幅320pxでも実績の画面がはみ出さない", await noOverflow(p));
   await ctx.close();
@@ -435,6 +436,70 @@ for (const [day, art] of [["2026-11-12", "guard"], ["2026-11-19", "text"]]) {
   await ctx.close();
 }
 
+// H. 1問を深くする（shared-workflows routines/game-dev.md「1問を深くする」）：自信をかける・復習
+check("引き継ぎ：transfer.js のキーに復習の記録（tobatsu-depth）・depth.js をゲームの script より前に読む", /<script src="transfer\.js" data-game="jobun-tobatsu" data-keys="tobatsu-v1,tobatsu-v1-snd,tobatsu-depth"><\/script>\s*<script src="depth\.js" data-game="jobun-tobatsu" data-key="tobatsu-depth"><\/script>/.test(html) && html.indexOf('src="depth.js"') < html.indexOf('src="data.js"'));
+{ const e = await checkDepth(readFileSync(path.join(root, "depth.js"), "utf8")); check("depth.js（自信をかける・復習）の動き", e.length === 0, e.join(" / ")); }
+{
+  const keyByDeed = (t) => { for (let m = 0; m < M.length; m++) for (let q = 0; q < M[m].qs.length; q++) if (M[m].qs[q].s === t) return m + ":" + q; return null; };
+  const dps = (p) => p.evaluate(() => JSON.parse(localStorage.getItem("tobatsu-depth") || "{}"));
+  const { ctx, open } = await newCtx();
+  const p = await open(); await p.click("#howto-ok");
+  await p.evaluate(() => { const s = JSON.parse(localStorage.getItem("tobatsu-v1")); s.seen = { kasume: 1 }; localStorage.setItem("tobatsu-v1", JSON.stringify(s)); });
+  await p.click("#go-p"); await p.click('[data-m="0"]');
+  const sb = await p.$eval("#dp-sure", (b) => [Math.round(b.getBoundingClientRect().height), b.getAttribute("aria-pressed"), !!(b.compareDocumentPosition(document.querySelector("#cards")) & Node.DOCUMENT_POSITION_FOLLOWING)]);
+  check("自信のボタン：札の上・高さ44px以上・はじめは押していない", sb[0] >= 44 && sb[1] === "false" && sb[2], sb.join(","));
+  await p.click("#dp-sure");
+  check("自信のボタンを押すと ✓ が出る（色だけで分けない）", (await p.getAttribute("#dp-sure", "aria-pressed")) === "true" && (await p.textContent("#dp-sure")).includes("✓"));
+  const k1 = keyByDeed(await deed(p));
+  await answer(p, false); await p.waitForTimeout(150);
+  check("自信ありで外すと、知らせ（#live）に「思いこみ」・札の下に「自信ありでまちがえた」と出る", (await p.textContent("#live")).includes("思いこみ") && (await p.textContent("#law")).includes("自信ありでまちがえた"));
+  check("外したその時に復習へ入る", !!((await dps(p)).rv || {})[k1], k1);
+  check("答えたあとは自信のボタンを出さない", await p.locator("#dp-sure").count() === 0);
+  await nextBtn(p);
+  await p.click("#dp-sure"); await answer(p, true);
+  check("自信ありで当てると「自信ありで当てた」", (await p.textContent("#law")).includes("自信ありで当てた"));
+  await nextBtn(p);
+  for (let i = 0; i < 4 && !(await p.$(".win")); i++) { await answer(p, true); await nextBtn(p); }
+  await p.click("#go"); await p.waitForTimeout(100);
+  check("終えた直後の結果に「自信ありの当たり 1/2」", (await p.textContent("#surestat").catch(() => "")).includes("1/2"));
+  let dp = await dps(p);
+  check("外した問題だけ復習に入る・自信ありの数と当たりも残る（実績に使う）", Object.keys(dp.rv || {}).join() === k1 && dp.sure === 2 && dp.sureOk === 1, Object.keys(dp.rv || {}).join(",") + ` ${dp.sure}/${dp.sureOk}`);
+  await p.click("#home");
+  check("日が来るまではホームに「復習」を出さない", await p.locator("#go-r").count() === 0);
+  await p.evaluate(() => { const d = JSON.parse(localStorage.getItem("tobatsu-depth")); for (const k in d.rv) d.rv[k].due = "2026-01-01"; localStorage.setItem("tobatsu-depth", JSON.stringify(d)); });
+  await p.reload(); await p.waitForTimeout(150);
+  check("日の来た復習があると、ホームに「復習 1問」", (await p.textContent("#go-r")).includes("復習 1問"));
+  const before = await st(p);
+  await p.click("#go-r");
+  check("復習の画面は「復習」と出る・同じ事件・体力は問題の数（1）", (await p.textContent("body")).includes("復習") && keyByDeed(await deed(p)) === k1 && (await p.$$(".hpbar i")).length === 1);
+  await answer(p, true); await nextBtn(p); await p.click("#go"); await p.waitForTimeout(100);
+  const after = await st(p); dp = await dps(p);
+  check("復習を終えると「復習の結果」・今日の記録・あとからは増えない・シェアは出ない", (await p.textContent("body")).includes("復習の結果") && JSON.stringify(after.days) === JSON.stringify(before.days) && JSON.stringify(after.pdays) === JSON.stringify(before.pdays) && JSON.stringify(after.kofi) === JSON.stringify(before.kofi) && !(await p.$(".shares")));
+  check("復習で当てると、次は3日後へ進む", dp.rv[k1] && dp.rv[k1].s === 1 && dp.rv[k1].due > "2026-11-05", JSON.stringify(dp.rv[k1]));
+  await p.click("#home");
+  check("復習を終えたら、ホームの「復習」は消える", await p.locator("#go-r").count() === 0);
+  await p.evaluate(() => { const d = JSON.parse(localStorage.getItem("tobatsu-depth")); d.rv["999:0"] = { s: 0, due: "2026-01-01", t: 1 }; d.rv["constructor|x"] = { s: 0, due: "2026-01-01", t: 2 }; d.rv["0:999"] = { s: 0, due: "2026-01-01", t: 3 }; localStorage.setItem("tobatsu-depth", JSON.stringify(d)); });
+  await p.reload(); await p.waitForTimeout(150);
+  check("作り直せない鍵（無い魔物・無い問題・constructor）は復習に数えず、ホームも出る", await p.locator("#go-d").count() === 1 && await p.locator("#go-r").count() === 0);
+  // 見抜いたその時に復習へ入る（見抜いてから降りても残る）
+  await p.click("#go-p"); await p.click('[data-m="0"]');
+  const k2 = keyByDeed(await deed(p));
+  await p.click("#hint"); await p.waitForTimeout(50);
+  check("見抜いたその時に、その問題が復習へ入る", ((await dps(p)).rv || {})[k2] && (await dps(p)).rv[k2].s === 0, k2);
+  // 復習の途中で外して日の来た問題が0になっても、ホームの「復習の続きから」で戻れる
+  await p.evaluate((k) => { const d = JSON.parse(localStorage.getItem("tobatsu-depth")); d.rv = { [k]: { s: 0, due: "2026-01-01", t: 9 } }; localStorage.setItem("tobatsu-depth", JSON.stringify(d)); }, k1);
+  await p.click("#back"); await p.reload(); await p.waitForTimeout(150);
+  await p.click("#go-r"); await answer(p, false); await nextBtn(p);
+  await p.click("#back"); await p.waitForTimeout(100);
+  check("復習の途中で外して日の来た問題が0になっても、ホームの「復習の続きから」で戻れる", ((await p.locator("#go-r").count()) ? await p.textContent("#go-r") : "").includes("続きから"));
+  if (await p.locator("#go-r").count()) { await p.click("#go-r"); check("復習の続きは同じ回（盾が1つ減ったまま）", (await p.$$(".shield .off")).length === 1); }
+  // 実績：自信ありで10回当てる・復習で5問覚えた
+  await p.evaluate(() => { const d = JSON.parse(localStorage.getItem("tobatsu-depth")); d.sure = 12; d.sureOk = 10; d.learned = 5; localStorage.setItem("tobatsu-depth", JSON.stringify(d)); });
+  await p.click("#back"); await p.click("#go-ach");
+  { const got = await p.$$eval(".ach.got", (es) => es.map((e) => e.textContent).join("|")); check("実績「たしかの目」「覚えなおし」は depth の記録から数える", got.includes("たしかの目") && got.includes("覚えなおし"), got.slice(0, 200)); }
+  await ctx.close();
+}
+
 // E. 古い記録・壊れた記録でも開ける
 {
   const { ctx, open } = await newCtx();
@@ -452,7 +517,7 @@ for (const [day, art] of [["2026-11-12", "guard"], ["2026-11-19", "text"]]) {
 }
 
 // 引き継ぎコード（別の端末へ記録を移す。shared-workflows template/transfer.js）
-await checkTransfer({ browser, url, game: "jobun-tobatsu", sample: { "tobatsu-v1": JSON.stringify({ v: 1, tut: true, days: { "2026-11-04": { st: [3, 2, 1, 3, 3] } }, dex: { kasume: { w: 2, b: 3 } }, laws: { k235: 2 }, xp: 2, seen: { kasume: 1 } }), "tobatsu-v1-snd": "0" }, check, open: async (p) => { await p.evaluate(() => { const d = document.getElementById("howto"); if (d && d.open) document.getElementById("howto-ok").click(); }); } });
+await checkTransfer({ browser, url, game: "jobun-tobatsu", sample: { "tobatsu-v1": JSON.stringify({ v: 1, tut: true, days: { "2026-11-04": { st: [3, 2, 1, 3, 3] } }, dex: { kasume: { w: 2, b: 3 } }, laws: { k235: 2 }, xp: 2, seen: { kasume: 1 } }), "tobatsu-v1-snd": "0", "tobatsu-depth": JSON.stringify({ v: 1, rv: { "0:1": { s: 1, due: "2026-11-20", t: 5 } } }) }, check, open: async (p) => { await p.evaluate(() => { const d = document.getElementById("howto"); if (d && d.open) document.getElementById("howto-ok").click(); }); } });
 check("ページのエラーが出ない", errors.length === 0, errors.slice(0, 3).join(" / "));
 // 思い出すは条文が1つでも遊べる（鍵にしない。satou さん 2026-11-06「好きなだけ遊んでほしい」）。足りない選び肢は、まだの条文から足す
 { const pr = await browser.newPage(); await pr.addInitScript(() => { if (!localStorage.getItem("tobatsu-v1")) localStorage.setItem("tobatsu-v1", JSON.stringify({ v: 1, tut: true, days: {}, dex: {}, laws: { k235: 1 }, seen: {} })); }); await pr.goto(url); await pr.waitForTimeout(200);
