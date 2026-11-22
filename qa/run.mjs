@@ -14,6 +14,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const url = pathToFileURL(path.join(root, "index.html")).href;
 const results = [];
 const check = (name, ok, detail = "") => results.push({ name, ok: !!ok, detail: String(detail) });
+const firstClose = async (q) => { if (await q.locator("#howto[open]").count()) await q.click("#howto-ok"); if (await q.locator("#core-coach").count()) { await q.evaluate(() => Core.coach.leave()); await q.waitForTimeout(100); } }; // はじめての練習の吹き出しをやめてホームへ（sync-template の migrateFirstQa が足した）
 const req = createRequire(import.meta.url);
 const D = req(path.join(root, "data.js")), G = req(path.join(root, "battle.js"));
 const L = D.LAWS, M = D.MONSTERS, len = (t) => [...t].length;
@@ -145,21 +146,21 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
 {
   const { ctx, open } = await newCtx();
   const p = await open();
-  check("初めて開くと遊び方が出る", await p.isVisible("#howto"));
+  check("はじめて開くと、遊び方の窓でなく吹き出しが出る", !(await p.isVisible("#howto")) && await p.isVisible("#core-coach"));
   await p.keyboard.press("Escape"); await p.waitForTimeout(100); check("遊び方を Esc で閉じられる", await p.locator("#howto[open]").count() === 0);
   await p.reload(); await p.waitForTimeout(200); check("遊び方を Esc で閉じても、開き直したとき出ない", await p.locator("#howto[open]").count() === 0);
-  await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(200); await p.click("#howto-ok"); await p.reload(); await p.waitForTimeout(200); check("遊び方を「わかった」で閉じてすぐ読み直しても出ない", await p.locator("#howto[open]").count() === 0);
+  await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(200); await firstClose(p); await p.reload(); await p.waitForTimeout(200); check("遊び方を「わかった」で閉じてすぐ読み直しても出ない", await p.locator("#howto[open]").count() === 0);
   { let again = 0; for (let i = 0; i < 10; i++) { await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(200); await p.keyboard.press("Escape"); await p.reload(); await p.waitForTimeout(200); again += await p.locator("#howto[open]").count(); } check("遊び方を Esc で閉じてすぐ読み直しても出ない（10回）", again === 0); }
   { const c = await browser.newContext(); const r = await c.newPage(); const big = []; // 題が h1{flex:1} で縦に伸び（伸びない形と比べて4pxより高ければ失敗）、iPad の縦で大きなすき間が出た（shared-workflows incidents/2026-11-07-title-stretched.md）
     for (const [w, h] of [[820, 1180], [390, 844], [1280, 800]]) { await r.setViewportSize({ width: w, height: h }); await r.goto(url); await r.waitForTimeout(200); await r.keyboard.press("Escape"); await r.waitForTimeout(100);
       const v = await r.evaluate(() => { const e = [...document.querySelectorAll(".title")].find((x) => x.offsetParent); if (!e) return null; const h = e.getBoundingClientRect().height; const f = e.style.flex; e.style.flex = "none"; const n = e.getBoundingClientRect().height; e.style.flex = f; return h - n; });
       if (v === null || v > 4) big.push(`${w}x${h}:${v === null ? "題なし" : "+" + Math.round(v) + "px"}`); }
     check("ホームの題は縦長の画面でも縦に伸びない（820×1180・390×844・1280×800）", big.length === 0, big.join(" ")); await c.close(); }
-  await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(200); check("「わかった」を押したその場で「見た」が残る", await p.locator("#howto-ok").evaluate((b) => { b.click(); return Object.keys(localStorage).some((k) => { try { return JSON.parse(localStorage.getItem(k)).tut === true; } catch { return false; } }); }));
+  await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(200); check("はじめての練習が始まったその場で「見た」が残る", await p.evaluate(() => { return Object.keys(localStorage).some((k) => { try { return JSON.parse(localStorage.getItem(k)).tut === true; } catch { return false; } }); })); await firstClose(p);
   check("ホーム：今日の5体の影が出て、名前はまだ伏せる", (await p.$$(".trio.shade svg")).length === 5 && (await p.textContent(".trio")).includes("？？？"));
   check("ホーム：まだ魔物に出会っていなくても連戦は最初から押せる（鍵なし・「開く」の説明なし）", !(await p.$eval("#go-e", (e) => e.disabled)) && !(await p.textContent("#go-e")).includes("開く"));
   { // 最初の日（出会った魔物なし）に連戦を押すと、今日の5体から1体と戦える・討伐すると出会った魔物に入る（前は今日の5体に出会うまで閉じていた）
-    const { ctx: c0, open: open0 } = await newCtx(); const q = await open0(); if (await q.locator("#howto[open]").count()) await q.click("#howto-ok");
+    const { ctx: c0, open: open0 } = await newCtx(); const q = await open0(); await firstClose(q);
     await q.click("#go-e"); const first = (await q.$eval(".mname", (e) => e.firstChild.textContent)).trim();
     const todayIx = G.dailyMons("2026-11-05"), shown = (await q.$$(".card")).length === 3 && todayIx.some((i) => M[i].name === first);
     const won = await beat(q), sv = await st(q);
@@ -241,7 +242,7 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
 // B. 外す・逃げられる・見抜く・おさらい（練習）
 {
   const { ctx, open } = await newCtx();
-  const p = await open(); await p.click("#howto-ok");
+  const p = await open(); await firstClose(p);
   await p.click("#go-p");
   check("練習：まだ出会っていない魔物は影で、選べない（2026-11-05 satouさん「練習で全員見えてしまう」）", (await p.$$("[data-m]")).length === 0 && (await p.$$(".dex > div.no")).length === M.length);
   await p.evaluate(() => { const s = JSON.parse(localStorage.getItem("tobatsu-v1")); s.seen = { kasume: 1 }; localStorage.setItem("tobatsu-v1", JSON.stringify(s)); });
@@ -295,7 +296,7 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
 // F. 連戦：盾は持ち越し・3体ごとに1つ戻る・盾が尽きたら終わり・最高を残す
 {
   const { ctx, open } = await newCtx();
-  const p = await open(); await p.click("#howto-ok");
+  const p = await open(); await firstClose(p);
   const met = ["kasume", "arakobushi", "zawameki", "itsuwari", "madowashi"], names = met.map((id) => M.find((m) => m.id === id).name);
   await p.evaluate((ids) => localStorage.setItem("tobatsu-v1", JSON.stringify({ v: 1, tut: true, seen: Object.fromEntries(ids.map((i) => [i, 1])) })), met);
   await p.reload();
@@ -321,7 +322,7 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
 // G. 今週の大魔の技：盾くだき（盾2つ）・名隠し（札に名前を出さない）
 for (const [day, art] of [["2026-11-12", "guard"], ["2026-11-19", "text"]]) {
   const { ctx, open } = await newCtx(day + "T03:00:00Z");
-  const p = await open(); await p.click("#howto-ok");
+  const p = await open(); await firstClose(p);
   await p.evaluate((d) => { const s = { v: 1, tut: true, days: {} }; s.days[d] = { st: [3, 3, 3, 3, 3] }; localStorage.setItem("tobatsu-v1", JSON.stringify(s)); }, day);
   await p.reload(); await p.click("#go-h");
   if (art === "guard") check("今週の技「盾くだき」：盾が2つから", (await p.$$(".shield span")).length === 2 && (await p.textContent(".wart")).includes("盾くだき"));
@@ -334,7 +335,7 @@ for (const [day, art] of [["2026-11-12", "guard"], ["2026-11-19", "text"]]) {
 // C. 続きから・古いタブ（同じ問題に二重に答えない）
 {
   const { ctx, open } = await newCtx();
-  const a = await open(); await a.click("#howto-ok"); await a.click("#go-d");
+  const a = await open(); await firstClose(a); await a.click("#go-d");
   await answer(a, true); await nextBtn(a);
   const d1 = await deed(a);
   await a.reload();
@@ -358,7 +359,7 @@ for (const [day, art] of [["2026-11-12", "guard"], ["2026-11-19", "text"]]) {
 // D. あとから遊ぶ（取りこぼした日）と、逃げられた日の記録
 {
   const { ctx, open } = await newCtx("2026-11-08T03:00:00Z");
-  const p = await open(); await p.click("#howto-ok");
+  const p = await open(); await firstClose(p);
   check("ホーム：あとから遊べる日の数（11/5〜11/7 の3日）", (await p.textContent("#go-cal")).includes("3"));
   await p.click("#go-cal");
   check("カレンダー：取りこぼした3日が押せる・始めた日より前は出さない", (await p.$$(".cal button.d.can")).length === 3 && !(await p.$('[data-k="2026-11-04"].can')));
@@ -392,7 +393,7 @@ for (const [day, art] of [["2026-11-12", "guard"], ["2026-11-19", "text"]]) {
 // F. 色だけで分けない（shared-workflows routines/game-dev.md A1）・知らせを #live に文字で出す（A7）・動きを減らす（A8）
 {
   const { ctx, open } = await newCtx();
-  const p = await open(); await p.click("#howto-ok");
+  const p = await open(); await firstClose(p);
   await p.evaluate(() => { window.__vib = 0; Object.defineProperty(navigator, "vibrate", { configurable: true, value: () => { window.__vib++; return true; } }); });
   await p.click("#go-d");
   const live = () => p.evaluate(() => document.getElementById("live").textContent);
@@ -443,7 +444,7 @@ check("引き継ぎ：transfer.js のキーに復習の記録（tobatsu-depth）
   const keyByDeed = (t) => { for (let m = 0; m < M.length; m++) for (let q = 0; q < M[m].qs.length; q++) if (M[m].qs[q].s === t) return m + ":" + q; return null; };
   const dps = (p) => p.evaluate(() => JSON.parse(localStorage.getItem("tobatsu-depth") || "{}"));
   const { ctx, open } = await newCtx();
-  const p = await open(); await p.click("#howto-ok");
+  const p = await open(); await firstClose(p);
   await p.evaluate(() => { const s = JSON.parse(localStorage.getItem("tobatsu-v1")); s.seen = { kasume: 1 }; localStorage.setItem("tobatsu-v1", JSON.stringify(s)); });
   await p.click("#go-p"); await p.click('[data-m="0"]');
   const sb = await p.$eval("#dp-sure", (b) => [Math.round(b.getBoundingClientRect().height), b.getAttribute("aria-pressed"), !!(b.compareDocumentPosition(document.querySelector("#cards")) & Node.DOCUMENT_POSITION_FOLLOWING)]);
@@ -508,7 +509,7 @@ check("引き継ぎ：transfer.js のキーに復習の記録（tobatsu-depth）
   await p.reload();
   const s = await p.evaluate(() => { const x = JSON.parse(localStorage.getItem("tobatsu-v1")); return x; });
   check("足りない入れ物があっても開ける（古い記録を消さない）", (await p.isVisible("#go-d")) && s.days["2026-11-04"]);
-  await p.click("#howto-ok"); await p.click("#go-d"); await answer(p, true);
+  await firstClose(p); await p.click("#go-d"); await answer(p, true);
   check("保存すると、知らない入れ物も残す", (await st(p)).extra === 1 && (await st(p)).days["2026-11-04"]);
   await p.evaluate(() => localStorage.setItem("tobatsu-v1", "{壊れた"));
   await p.reload();
@@ -517,7 +518,7 @@ check("引き継ぎ：transfer.js のキーに復習の記録（tobatsu-depth）
 }
 
 // 引き継ぎコード（別の端末へ記録を移す。shared-workflows template/transfer.js）
-await checkTransfer({ browser, url, game: "jobun-tobatsu", sample: { "tobatsu-v1": JSON.stringify({ v: 1, tut: true, days: { "2026-11-04": { st: [3, 2, 1, 3, 3] } }, dex: { kasume: { w: 2, b: 3 } }, laws: { k235: 2 }, xp: 2, seen: { kasume: 1 } }), "tobatsu-v1-snd": "0", "tobatsu-depth": JSON.stringify({ v: 1, rv: { "0:1": { s: 1, due: "2026-11-20", t: 5 } } }) }, check, open: async (p) => { await p.evaluate(() => { const d = document.getElementById("howto"); if (d && d.open) document.getElementById("howto-ok").click(); }); } });
+await checkTransfer({ browser, url, game: "jobun-tobatsu", sample: { "tobatsu-v1": JSON.stringify({ v: 1, tut: true, days: { "2026-11-04": { st: [3, 2, 1, 3, 3] } }, dex: { kasume: { w: 2, b: 3 } }, laws: { k235: 2 }, xp: 2, seen: { kasume: 1 } }), "tobatsu-v1-snd": "0", "tobatsu-depth": JSON.stringify({ v: 1, rv: { "0:1": { s: 1, due: "2026-11-20", t: 5 } } }) }, check, open: async (p) => { await p.evaluate(() => { const d = document.getElementById("howto"); if (d && d.open) document.getElementById("howto-ok").click(); if (window.Core && Core.coach && Core.coach.active()) Core.coach.leave(); }); } });
 check("ページのエラーが出ない", errors.length === 0, errors.slice(0, 3).join(" / "));
 // 思い出すは条文が1つでも遊べる（鍵にしない。satou さん 2026-11-06「好きなだけ遊んでほしい」）。足りない選び肢は、まだの条文から足す
 { const pr = await browser.newPage(); await pr.addInitScript(() => { if (!localStorage.getItem("tobatsu-v1")) localStorage.setItem("tobatsu-v1", JSON.stringify({ v: 1, tut: true, days: {}, dex: {}, laws: { k235: 1 }, seen: {} })); }); await pr.goto(url); await pr.waitForTimeout(200);
