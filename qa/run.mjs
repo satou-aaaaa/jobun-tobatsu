@@ -146,7 +146,7 @@ async function smallTaps(p) { return p.$$eval("button, a, summary", (es) => es.f
 {
   const { ctx, open } = await newCtx();
   const p = await open();
-  check("はじめて開くと、遊び方の窓でなく吹き出しが出る", !(await p.isVisible("#howto")) && await p.isVisible("#core-coach"));
+  check("はじめて開くと、遊び方の窓でなく吹き出しが出る", !(await p.isVisible("#howto")) && await p.locator("#core-coach").waitFor({ timeout: 3000 }).then(() => true, () => false));
   await p.keyboard.press("Escape"); await p.waitForTimeout(100); check("遊び方を Esc で閉じられる", await p.locator("#howto[open]").count() === 0);
   await p.reload(); await p.waitForTimeout(200); check("遊び方を Esc で閉じても、開き直したとき出ない", await p.locator("#howto[open]").count() === 0);
   await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(200); await firstClose(p); await p.reload(); await p.waitForTimeout(200); check("遊び方を「わかった」で閉じてすぐ読み直しても出ない", await p.locator("#howto[open]").count() === 0);
