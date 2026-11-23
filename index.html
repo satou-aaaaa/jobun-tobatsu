@@ -712,7 +712,7 @@ html.a11y-say body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))!i
     // 使い方: 画面を描く関数の最初で Core.screens.mark("dex")（ホームは mark("")）。起動時に一度
     //         Core.screens.route({ dex: book, cal: () => cal(), ach: achView }, home)。
     // 履歴はいつも [ホーム] か [ホーム, #画面] の2つまで（画面から画面へは置き換え、ホームへは戻す）。開き直すとホームから。
-    const views = {};
+    const views = new Map(); // Map にする（# から来た名前で Object の関数を呼ばない。CodeQL js/unvalidated-dynamic-method-call）
     let homeFn = null, pushed = false, skipPop = 0, quiet = false;
     const hashName = () => { try { return decodeURIComponent((location.hash || "").slice(1)); } catch (e) { return ""; } };
     const bare = () => location.pathname + location.search;
@@ -736,14 +736,16 @@ html.a11y-say body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))!i
       if (skipPop) { skipPop--; return; }
       if (foreign()) return;
       const h = hashName();
-      const fn = (h && views[h]) || homeFn;
-      if (!h || !views[h]) pushed = false;
+      const own = !!h && views.has(h);
+      if (!own) pushed = false;
+      // CodeQL js/unvalidated-dynamic-method-call：# から選んだものは has で確かめ、関数かどうかも見てから呼ぶ
+      const fn = own ? views.get(h) : homeFn;
       quiet = true;
-      try { if (fn) fn(); } finally { quiet = false; }
+      try { if (typeof fn === "function") fn(); } finally { quiet = false; }
     }
     function route(map, home) {
       if (all().length) return;
-      Object.assign(views, map || {});
+      for (const k of Object.keys(map || {})) if (typeof map[k] === "function") views.set(k, map[k]);
       // 何度呼んでもよい（ゲームの home() の最初で呼ぶ）。# を消すのは最初の1回だけ（開き直したらホームから。途中の回は続きから出る）
       if (!homeFn) { addEventListener("popstate", onPop); if (hashName() && !foreign()) try { history.replaceState(null, "", bare()); } catch (e) { /* 使えない */ } }
       homeFn = home;
@@ -1022,6 +1024,7 @@ function firstPlay() {
 }
 // first-play:end
 function home() {
+  Core.screens.route({}, home); Core.screens.mark(""); // スマホの「戻る」でゲームから出ずにホームへ（共通部品 game-core）
   const s = load(), k = todayKey(), done = s.days[k], hdone = s.hdays[k];
   for (const m of Object.keys(s.runs)) { const r = s.runs[m]; if (r && isDone(r)) { RK = m; return finish(); } } // 終えた回の結果をまだ見ていなければ、先に見せる
   const rd = s.runs.d && s.runs.d.date === k ? s.runs.d : null, rh = s.runs.h && s.runs.h.date === k ? s.runs.h : null;
@@ -1103,6 +1106,7 @@ function title(r) { const n = r.plan.length; return r.mode === "e" ? `連戦 ${r
 const cardMk = (right, wrong) => (right ? `<span class="mk" aria-hidden="true">✓ 正しい</span>` : wrong ? `<span class="mk" aria-hidden="true">✕ 選んだ</span>` : "");
 const cardSt = (right, wrong, gone) => (right ? "（正しい条文）" : wrong ? "（選んだ・まちがい）" : gone ? "（見抜いて消した）" : "");
 function play(fx) {
+  Core.screens.mark("play");
   const s = load(), r = s.runs[RK];
   if (!r) return home();
   if (r.view) return beaten(r); // 最後の1体も、討伐の画面を見てから結果へ
@@ -1201,6 +1205,7 @@ function next(runId, p) {
 }
 // 討伐（または逃げられた）の画面
 function beaten(r) {
+  Core.screens.mark("play");
   const last = r.res[r.res.length - 1], b = r.plan[r.res.length - 1], m = b.m === -2 ? null : monOf(b, 0), win = r.view === "win";
   const more = !isDone(r), lastDmg = last.dmg || 0;
   draw(`${back(title({ ...r, res: r.res.slice(0, -1) }))}
@@ -1239,6 +1244,7 @@ function finish() {
 function shareText(mode, k, st) { return mode === "e" ? `条文討伐 連戦 ${st.filter((x) => x).length}体討伐\n${SITE}` : `条文討伐 ${mode === "h" ? "上級" : "#" + dayNo(k)}\n${st.map(mark).join("")}\n${SITE}`; }
 function result(mode, k, opt = {}) {
   if (mode === "e") return endResult(opt);
+  Core.screens.mark("result");
   const s = load(), rec = opt.run ? { st: opt.run.res.map((x) => x.st) } : (bookOf(s, mode) || {})[k];
   if (!rec) return home();
   const plan = opt.run ? opt.run.plan : mode === "h" ? G.hardPlan(k) : G.dailyPlan(k);
@@ -1266,6 +1272,7 @@ function result(mode, k, opt = {}) {
 
 // 連戦の結果：何体討伐したかと最高
 function endResult(opt) {
+  Core.screens.mark("result");
   const s = load(), r = opt.run; if (!r) return home();
   const n = r.res.filter((x) => x.st).length, best = s.ebest || 0, txt = shareText("e", "", r.res.map((x) => x.st));
   draw(`${back("連戦の結果")}
@@ -1284,6 +1291,7 @@ function endResult(opt) {
 
 // ---- 練習 ----
 function practiceMenu() {
+  Core.screens.mark("practice");
   const s = load(), seen = seenIx(s);
   draw(`${back("練習", "記録には入りません（図鑑・条文帳には載ります）")}
     ${s.miss.length ? `<button class="main" id="rev">外した条文をおさらい（${Math.min(5, s.miss.length)}問）</button>` : `<p class="note">外した条文は、ここで「おさらい」できます。</p>`}
@@ -1297,6 +1305,7 @@ function practiceMenu() {
 }
 // ---- 魔物図鑑 ----
 function dexView() {
+  Core.screens.mark("dex");
   const s = load(), all = [...MON, D.BOSS];
   draw(`${back("魔物図鑑", "討伐した魔物が載ります")}
     <div class="dex">${all.map((m) => { const d = s.dex[m.id]; const got = d && d.w > 0; return `<div class="${got ? "" : "no"}">${monSvg(m, { flat: true })}<span><b>${got ? esc(m.name) : "？？？"}</b><br>${esc(m.field)}${got ? `<br>${esc(m.lore)}` : ""}</span><em>${got ? `${starStr(d.b)}<br>${d.w}回` : ""}</em></div>`; }).join("")}</div>
@@ -1306,6 +1315,7 @@ function dexView() {
 }
 // ---- 条文帳 ----
 function bookView() {
+  Core.screens.mark("book");
   const s = load(), have = LAWIDS.filter((k) => s.laws[k]).length, groups = {};
   LAWIDS.forEach((k) => (groups[LAWS[k].law] = groups[LAWS[k].law] || []).push(k));
   draw(`${back("条文帳", `当てた条文が載ります ${have}/${LAWIDS.length}`)}
@@ -1328,6 +1338,7 @@ function recallStart() {
   recallView();
 }
 function recallView() {
+  Core.screens.mark("recall");
   if (!RC) return bookView();
   if (RC.i >= RC.list.length) {
     draw(`${back("思い出す")}<div class="win"><div class="big">${RC.ok}/${RC.list.length}</div><p class="note">思い出せた条文。外したものは条文帳で読み直せます。</p></div>
@@ -1347,6 +1358,7 @@ function recallView() {
 }
 // ---- 実績 ----
 function achView() {
+  Core.screens.mark("ach");
   const s = load(), list = achOf(s);
   draw(`${back("実績", `${list.filter((a) => a.got).length}/${ACH.length}`)}
     <div class="achs">${list.map((a) => `<div class="ach${a.got ? " got" : ""}"><span class="ic">${a.ic}</span><span><b>${a.name}</b><small>${a.cond}</small></span><span class="pg">${a.got ? "達成" : `${a.n}/${a.g}`}<i><span style="width:${(a.n / a.g) * 100}%"></span></i></span></div>`).join("")}</div>${footer()}`);
@@ -1354,6 +1366,7 @@ function achView() {
 }
 // ---- カレンダー（ひと月ずつ。取りこぼした日はあとから遊べる）----
 function calendar(ym) {
+  Core.screens.mark("cal");
   const s = load(), k = todayKey(); ym = ym || k.slice(0, 7);
   const [y, mo] = ym.split("-").map(Number), first = new Date(Date.UTC(y, mo - 1, 1)), days = new Date(Date.UTC(y, mo, 0)).getUTCDate();
   const can = new Set(missedDays(s, k)), st = streak(s.days);

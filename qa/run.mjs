@@ -517,6 +517,17 @@ check("引き継ぎ：transfer.js のキーに復習の記録（tobatsu-depth）
   await ctx.close();
 }
 
+// 「戻る」：スマホのブラウザの「戻る」で、ゲームから出ずにホームへ（共通部品 game-core の Core.screens）
+{ const { ctx, open } = await newCtx();
+  await ctx.addInitScript(() => { if (!localStorage.getItem("tobatsu-v1")) localStorage.setItem("tobatsu-v1", JSON.stringify({ v: 1, tut: true, days: {}, dex: {}, laws: {}, seen: {} })); });
+  const p = await open(); await p.waitForSelector("#go-d"); const home0 = p.url(), got = [];
+  for (const btn of ["#go-p", "#go-dex", "#go-book", "#go-ach", "#go-cal", "#go-d"]) {
+    await p.click(btn); await p.waitForSelector("#back"); const h = await p.evaluate(() => location.hash);
+    await p.goBack(); await p.waitForSelector("#go-d", { state: "visible" });
+    got.push({ btn, h, url: p.url(), home: await p.isVisible("h1.title") && !(await p.$("#back")) });
+  }
+  check("「戻る」：練習・図鑑・条文帳・実績・カレンダー・今日の5体からホームへ戻り、ゲームのページのまま", got.every((g) => g.h.length > 1 && g.url === home0 && g.home), JSON.stringify(got));
+  await ctx.close(); }
 // 引き継ぎコード（別の端末へ記録を移す。shared-workflows template/transfer.js）
 await checkTransfer({ browser, url, game: "jobun-tobatsu", sample: { "tobatsu-v1": JSON.stringify({ v: 1, tut: true, days: { "2026-11-04": { st: [3, 2, 1, 3, 3] } }, dex: { kasume: { w: 2, b: 3 } }, laws: { k235: 2 }, xp: 2, seen: { kasume: 1 } }), "tobatsu-v1-snd": "0", "tobatsu-depth": JSON.stringify({ v: 1, rv: { "0:1": { s: 1, due: "2026-11-20", t: 5 } } }) }, check, open: async (p) => { await p.evaluate(() => { const d = document.getElementById("howto"); if (d && d.open) document.getElementById("howto-ok").click(); if (window.Core && Core.coach && Core.coach.active()) Core.coach.leave(); }); } });
 check("ページのエラーが出ない", errors.length === 0, errors.slice(0, 3).join(" / "));
